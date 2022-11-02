@@ -1,0 +1,19 @@
+[package]
+name = "jupiter-search"
+version = "0.1.0"
+edition = "2021"
+
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.66"
+rss = { version = "2.0.1", features = ["serde", "url"] }
+serde = { version = "1.0.147", features = ["derive"] }
+serde-xml-rs = "0.6.0"
+
+
+meilisearch-sdk = "0.20"
+serde_json = "1.0"
+tokio = { version = "1.21.2", features = ["full"] }
+regex = "1.6.0"
