@@ -7,11 +7,11 @@ use std::env::args;
 use std::fs::File;
 use std::path::Path;
 use std::time::Instant;
-
+use webrtc_vad::{SampleRate, VadMode};
 
 // this is copied from https://github.com/tazz4843/coqui-stt/blob/master/examples/basic_usage.rs
 // and run using https://coqui.ai/english/coqui/v0.9.3 model
-// mp3 had to be first converted using ffmpeg to 
+// mp3 had to be first converted using ffmpeg to
 // ffmpeg -i action.mp3 -ar 16000 action.wav
 fn main() {
     let model_dir_str = args().nth(1).expect("Please specify model dir");
@@ -83,18 +83,46 @@ fn main() {
     let st = Instant::now();
 
     // Run the speech to text algorithm
-    let result = m.speech_to_text(&audio_buf).unwrap();
+    m.add_hot_word("linux", 10.0).unwrap();
 
-    let et = Instant::now();
-    let tt = et.duration_since(st);
+    let mut vad = webrtc_vad::Vad::new_with_rate_and_mode(SampleRate::Rate16kHz, VadMode::Quality);
+
+    let mut stream = m.as_streaming().unwrap();
+    let buffer_size = 16 * 20;
+
+    let mut start = 0;
+    let mut curr = 0;
+    let mut curr_silence = 0;
+    for chunk in audio_buf.chunks(buffer_size) {
+        curr = curr + buffer_size;
+        if !&vad.is_voice_segment(chunk).unwrap() {
+            curr_silence += buffer_size;
+        }
+        // todo check padding?
+        if curr_silence > buffer_size * 300 / 20 {
+            let text = stream
+                .model_mut()
+                .speech_to_text(&audio_buf[start..curr])
+                .unwrap();
+            if !text.is_empty() {
+                println!("{} - {} : {}", start, curr, text);
+            }
+            curr_silence = 0;
+            start = curr;
+        }
+    }
 
     // Output the result
-    println!("{}", result);
+    let et = Instant::now();
+    let tt = et.duration_since(st);
     println!("took {:?}", tt);
 }
 
 fn stereo_to_mono(samples: &[i16]) -> Vec<i16> {
     // converting stereo to mono audio is relatively simple
     // just take the average of the two channels
-    samples.chunks(2).map(|c| ((c[0] as i32 + c[1] as i32) / 2) as i16).collect()
+    samples
+        .chunks(2)
+        .map(|c| ((c[0] as i32 + c[1] as i32) / 2) as i16)
+        .collect()
 }
