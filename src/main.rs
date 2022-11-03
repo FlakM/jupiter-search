@@ -1,10 +1,10 @@
-
+use anyhow::anyhow;
 use anyhow::Result;
-use meilisearch_sdk::{settings::Settings, Client, task_info::TaskInfo};
+use meilisearch_sdk::{settings::Settings, task_info::TaskInfo, Client};
+use regex::Regex;
+use rss::Enclosure;
 use rss::{Channel, Item};
 use serde::{Deserialize, Serialize};
-use anyhow::anyhow;
-use regex::Regex;
 
 #[derive(Serialize, Deserialize)]
 struct Episode {
@@ -12,22 +12,32 @@ struct Episode {
     id: String,
     title: String,
     description: Option<String>,
+    content: Option<String>,
     link: String,
+    enclosure: Enclosure,
     pub_date: String,
 }
 
 impl TryFrom<Item> for Episode {
     type Error = anyhow::Error;
-    fn try_from(value: Item) -> Result<Self, Self::Error> {
+    fn try_from(episode: Item) -> Result<Self, Self::Error> {
         //todo come up with better cleaning up... at least move it to lazy static
         let re = Regex::new(r"[a-zA-Z0-9]").unwrap();
-        let title = value.title.ok_or_else(|| anyhow!("missing title"))?;
+        let title = episode.title.ok_or_else(|| anyhow!("missing title"))?;
         let episode = Episode {
-            id: re.find_iter(&title).map(|a| a.as_str()).collect::<Vec<_>>().join(""),
+            id: re
+                .find_iter(&title)
+                .map(|a| a.as_str())
+                .collect::<Vec<_>>()
+                .join(""),
             title,
-            description: value.description,
-            link: value.link.ok_or_else(|| anyhow!("missing link!"))?,
-            pub_date: value.pub_date.ok_or_else(|| anyhow!("missing pubValue"))?,
+            description: episode.description,
+            content: episode.content,
+            link: episode.link.ok_or_else(|| anyhow!("missing link!"))?,
+            enclosure: episode.enclosure.ok_or_else(|| anyhow!("missing enclosure url"))?,
+            pub_date: episode
+                .pub_date
+                .ok_or_else(|| anyhow!("missing pubValue"))?,
         };
         Ok(episode)
     }
@@ -54,6 +64,7 @@ async fn main() -> Result<()> {
         .find(|i| i.uid == "podcasts")
         .is_none()
     {
+        // https://docs.meilisearch.com/learn/core_concepts/relevancy.html#built-in-rules
         let settings = Settings::new()
             .with_ranking_rules([
                 "words",
@@ -62,8 +73,7 @@ async fn main() -> Result<()> {
                 "attribute",
                 "sort",
                 "exactness",
-                "release_date:desc",
-                "rank:desc",
+                "pub_date:desc",
             ])
             .with_searchable_attributes(["title", "description"])
             .with_displayed_attributes(["title", "description", "link", "pub_date"])
@@ -79,9 +89,9 @@ async fn main() -> Result<()> {
     // adding documents
     let task: TaskInfo = client
         .index("podcasts2")
-        .add_documents(&episodes[..], Some("id")).await?;
-    let result = task.wait_for_completion(&client, None, None)
+        .add_documents(&episodes[..], Some("id"))
         .await?;
+    let result = task.wait_for_completion(&client, None, None).await?;
 
     println!("done! {:?}", result);
 
