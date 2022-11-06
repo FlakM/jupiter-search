@@ -3,11 +3,12 @@ use coqui_stt::Model;
 use dasp_interpolate::linear::Linear;
 use dasp_signal::interpolate::Converter;
 use dasp_signal::{from_iter, Signal};
+use jupiter_search::chunker::{Chunk, Chunker};
 use std::env::args;
 use std::fs::File;
 use std::path::Path;
-use std::time::Instant;
-use webrtc_vad::{SampleRate, VadMode};
+use std::time::{Duration, Instant};
+use webrtc_vad::VadMode;
 
 // this is copied from https://github.com/tazz4843/coqui-stt/blob/master/examples/basic_usage.rs
 // and run using https://coqui.ai/english/coqui/v0.9.3 model
@@ -84,33 +85,21 @@ fn main() {
 
     // Run the speech to text algorithm
     m.add_hot_word("linux", 10.0).unwrap();
+    let mut chunker = Chunker::new(Duration::from_millis(500), VadMode::Quality);
 
-    let mut vad = webrtc_vad::Vad::new_with_rate_and_mode(SampleRate::Rate16kHz, VadMode::Quality);
 
-    let mut stream = m.as_streaming().unwrap();
-    let buffer_size = 16 * 20;
+    chunker
+        .get_silence_chunks(&audio_buf)
+        .into_iter()
+        .map( |Chunk { buf, start, stop }| {
+            let text = m.speech_to_text(buf).unwrap();
+            (start, stop, text)
+        })
+        .filter(|(_,_,text)| !text.is_empty())
+        .for_each(|(start, stop, text)| {
+            println!("{:?} - {:?} [{:?}] -> {}", start, stop, stop-start, text);
+        });
 
-    let mut start = 0;
-    let mut curr = 0;
-    let mut curr_silence = 0;
-    for chunk in audio_buf.chunks(buffer_size) {
-        curr = curr + buffer_size;
-        if !&vad.is_voice_segment(chunk).unwrap() {
-            curr_silence += buffer_size;
-        }
-        // todo check padding?
-        if curr_silence > buffer_size * 300 / 20 {
-            let text = stream
-                .model_mut()
-                .speech_to_text(&audio_buf[start..curr])
-                .unwrap();
-            if !text.is_empty() {
-                println!("{} - {} : {}", start, curr, text);
-            }
-            curr_silence = 0;
-            start = curr;
-        }
-    }
 
     // Output the result
     let et = Instant::now();

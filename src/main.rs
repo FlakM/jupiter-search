@@ -34,11 +34,14 @@ impl TryFrom<Item> for Episode {
             description: episode.description,
             content: episode.content,
             link: episode.link.ok_or_else(|| anyhow!("missing link!"))?,
-            enclosure: episode.enclosure.ok_or_else(|| anyhow!("missing enclosure url"))?,
+            enclosure: episode
+                .enclosure
+                .ok_or_else(|| anyhow!("missing enclosure url"))?,
             pub_date: episode
                 .pub_date
                 .ok_or_else(|| anyhow!("missing pubValue"))?,
         };
+
         Ok(episode)
     }
 }
@@ -58,12 +61,7 @@ async fn main() -> Result<()> {
 
     let indexes = client.list_all_indexes().await?;
 
-    if !indexes
-        .results
-        .iter()
-        .find(|i| i.uid == "podcasts")
-        .is_none()
-    {
+    if indexes.results.iter().any(|i| i.uid == "podcasts") {
         // https://docs.meilisearch.com/learn/core_concepts/relevancy.html#built-in-rules
         let settings = Settings::new()
             .with_ranking_rules([
