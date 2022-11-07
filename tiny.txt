@@ -1,0 +1,26 @@
+[0 - 968]:  Hello and welcome to Linux Action News, Episode 264, recorded on October 26th, 2022.
+[968 - 1068]:  I'm Chris.
+[1068 - 1168]:  And I'm Wes.
+[1168 - 1268]:  Hello Wes.
+[1268 - 1468]:  Let's do the news.
+[1468 - 1864]:  Canonical announced Ubuntu 2210 this week.
+[1864 - 2044]:  Codenamed Kinetic Kudu.
+[2044 - 2500]:  This interim release seems to have a particular focus on the Raspberry Pi.
+[2500 - 2620]:  I don't mind that at all.
+[2620 - 2976]:  Ubuntu 2210 now supports a micro-python goodness.
+[2976 - 3540]:  On various micro-controllers including the Raspberry Pi Pico W.
+[3540 - 4032]:  Also, the Ubuntu graphics stack has transitioned to KMS, meaning developers can run
+[4032 - 4504]:  Pi-based graphical applications, say using something like Qt, without a desktop session.
+[4504 - 5020]:  And without Pi-specific drivers, you can see that it's great for a lot of hardware installations.
+[5020 - 5424]:  This compliments also expanded support in this release of Ubuntu for all kinds of displays
+[5424 - 5968]:  like E and Cat series, the hyperpixle range, and even the Raspberry Pi official touch screen.
+[5968 - 6812]:  The GNOME desktop was updated to version 43, which includes GTCK4 theming for improved performance.
+[6812 - 7440]:  And Pi-Boyer also becomes the default audio system with 2210, along with wire plumber as
+[7440 - 7636]:  the session manager.
+[7636 - 8104]:  Making this now a common stack across modern Linux desktops.
+[8104 - 8484]:  And finally an area that Canonical was drawing special attention to is their new Steam
+[8484 - 9184]:  Snap.
+[9184 - 9984]:  They noted that it includes the latest Mesa, presumably with the ability to decode video, and gamers can now be confident they'll always be up to date regardless of their host OS without needing to configure any of those gross PPA's that somebody came up with.
+[9984 - 10984]:  And you know maybe this isn't absolutely necessary on an intern release like this particular one, but you could see how this Snap is going to be very useful on future LTS releases.
+[10984 - 11984]:  But you can hear more of our thoughts on the overall release in Linux Unplugged episode 481.
+took 18.931472413s
