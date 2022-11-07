@@ -1,0 +1,42 @@
+[0 - 324]:  [MUSIC]
+[324 - 972]:  Hello, and welcome to Linux Action News, episode 264 recorded on October 26th, 2022.
+[972 - 1060]:  I'm Chris.
+[1060 - 1172]:  And I'm Wes.
+[1172 - 1268]:  Hello, Wes.
+[1268 - 1448]:  Let's do the news.
+[1448 - 1844]:  Canonical announced Ubuntu 2210 this week,
+[1844 - 2024]:  code named Kinetic Kudu.
+[2024 - 2500]:  This interim release seems to have a particular focus on the Raspberry Pi.
+[2500 - 2612]:  I don't mind that at all.
+[2612 - 2964]:  Ubuntu 2210 now supports a micro Python goodness
+[2964 - 3540]:  on various microcontrollers, including the Raspberry Pi Pico W.
+[3540 - 3896]:  Also, the Ubuntu graphics stack has transitioned to KMS,
+[3896 - 4192]:  meaning developers can run Pi-based graphical applications,
+[4192 - 4492]:  say using something like Qt, without a desktop session,
+[4492 - 4708]:  and without Pi-specific drivers.
+[4708 - 5012]:  You can see that it's great for a lot of hardware installations.
+[5012 - 5304]:  This complements also expanded support in this release of Ubuntu
+[5304 - 5732]:  for all kinds of displays like E-ink, hat series, the hyper pixel range,
+[5732 - 6044]:  and even the Raspberry Pi official touchscreen.
+[6044 - 6380]:  The GNOME desktop was updated to version 43,
+[6380 - 6784]:  which includes GTK4 theming for improved performance.
+[6784 - 7296]:  And Pipewire also becomes the default audio system with 2210,
+[7296 - 7616]:  along with wire plumber as the session manager,
+[7616 - 8088]:  making this now a common stack across modern Linux desktops.
+[8088 - 8400]:  And finally, an area that Canonical was drawing special attention to
+[8400 - 8588]:  is their new Steam Snap.
+[8588 - 8836]:  They noted that it includes the latest Mesa,
+[8836 - 9084]:  presumably with the ability to decode video,
+[9084 - 9356]:  and gamers can now be confident they'll always be up to date,
+[9356 - 9520]:  regardless of their host OS,
+[9520 - 9816]:  without needing to configure any of those gross PPA's
+[9816 - 10024]:  that somebody came up with.
+[10024 - 10204]:  And you know, maybe this isn't absolutely necessary
+[10204 - 10524]:  on an intern release like this particular one,
+[10524 - 10812]:  but you could see how this snap is going to be very useful
+[10812 - 11000]:  on future LTS releases.
+[11000 - 11212]:  But you can hear more of our thoughts on the overall release
+[11212 - 11496]:  in Linux Unplugged, episode 481.
+[11496 - 11856]:  (dramatic music)
+[11856 - 12012]:  - Get T, lightweight.
+took 33.630369258s
