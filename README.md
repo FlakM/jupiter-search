@@ -56,11 +56,10 @@ docker run -it --rm \
 
 ```
 mkdir models
-# stt is super old in nix and doesn't support tflite so we have to use
-# some old version of acustic model compatible with deep speech too
-# https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/tools/audio/stt/default.nix#L29
-curl -L https://coqui.gateway.scarf.sh/english/coqui/v0.9.3/model.pbmm -o models/model.pbmm
-curl -L https://coqui.gateway.scarf.sh/english/coqui/v0.9.3/coqui-stt-0.9.3-models.scorer -o models/model.scorer 
+# this might be one of:
+#  "tiny.en" "tiny" "base.en" "base" "small.en" "small" "medium.en" "medium" "large"
+model=medium.en
+curl --output ggml-$model.bin https://ggml.ggerganov.com/ggml-model-whisper-$model.bin
 ```
 2. Download the audio from rss feed
 
@@ -78,7 +77,10 @@ ffmpeg -i action.mp3 -ar 16000 -T 60 action.wav
 4. Run the inference example
 
 ```
-❯ cargo run --release --example=get_transcript -- models action_short.wav | tee output.txt
+cd whisper.cpp
+make
+cd -
+cargo run --release --example=get_transcript -- models action_short.wav | tee output.txt
     Finished release [optimized] target(s) in 0.10s
      Running `target/release/examples/get_transcript models action_short.wav`
 TensorFlow: v2.3.0-6-g23ad988fcde

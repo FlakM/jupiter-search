@@ -1,27 +1,31 @@
-Using external scorer `models/model.scorer`
-0ns - 8.7s [8.7s] -> kueelo and welcome to limitation news episode two hundred and sixty four record about october twenty six
-8.78s - 10.42s [1.64s] -> i'm chris
-10.66s - 12.56s [1.9s] -> i'm less hello was
-12.72s - 13.74s [1.02s] -> so the news
-14.5s - 18.04s [3.54s] -> an instant twenty two ten a week
-18.4s - 24.74s [6.34s] -> god named connecticut this interim release is to have a particular focus on the rabbit pie
-25.04s - 33.06s [8.02s] -> in that at all but to the two now supports a micro python goodness on various micro controllers including the raspberry pie
-35.36s - 43.4s [8.04s] -> also the pentagraph stack has transition the cams meaning developers can run pie base graphica say using something like cut
-43.5s - 49.62s [6.12s] -> without a desk top session and without pie specific drivers can see that great for a lot of hard warstlin
-49.94s - 59.56s [9.62s] -> his compliments also expanded support in this release of a bent for all kinds of displays like in cat series hyperian and even the asbury pie official touch screen
-60.44s - 63.72s [3.28s] -> decapitated diversion forty three
-63.8s - 67.32s [3.52s] -> includes c k for feminine performance
-67.64s - 75.62s [7.98s] -> and piper also becomes the default audio so with twenty two ten along with my poor as the section manager
-76s - 80.4s [4.4s] -> making this vow acomin stack was moralists
-80.92s - 85.32s [4.4s] -> finally and there that economical is drawing special attention to is there new steam snap
-85.88s - 88.14s [2.26s] -> he noted that it includes the latest massa
-88.36s - 90.58s [2.22s] -> presumably with the ability to decode video
-90.68s - 96.86s [6.18s] -> and games cannot be confident will always be up to date regardless of their host a less without endangering those
-97.3s - 98.46s [1.16s] -> as the
-98.56s - 99.86s [1.3s] -> somebody came up with
-100.18s - 103.84s [3.66s] -> and you know maybe this isn't absolutely necessary on an intern released like
-104.16s - 107.88s [3.72s] -> particular one but you could see how this snap is going to be very useful
-107.98s - 109.7s [1.72s] -> on future altius releases
-110.02s - 115.06s [5.04s] -> more thoughts on the overall release and when in a plug episode four hundred and eighty one
-115.28s - 119.48s [4.2s] -> get
-took 61.825862705s
+[0 - 970]:  Hello, and welcome to Linux Action News, Episode 264, recorded on October 26, 2022.
+[970 - 1088]:  I'm Chris.
+[1088 - 1188]:  And I'm Wes.
+[1188 - 1288]:  Hello Wes.
+[1288 - 1456]:  Let's do the news.
+[1456 - 1854]:  Canonical announced Ubuntu 22.10 this week.
+[1854 - 2400]:  Codenamed Kinetic Kudu, this interim release seems to have a particular focus on the Raspberry
+[2400 - 2500]:  Pi.
+[2500 - 2640]:  I don't mind that at all.
+[2640 - 3180]:  Ubuntu 22.10 now supports a MicroPython goodness on various microcontrollers, including the
+[3180 - 3448]:  Raspberry Pi Pico W.
+[3448 - 4084]:  Also, the Ubuntu graphics stack has transitioned to KMS, meaning developers can run Pi-based
+[4084 - 4530]:  graphical applications, say using something like Qt, without a desktop session and without
+[4530 - 4672]:  Pi-specific drivers.
+[4672 - 5016]:  You can see that's great for a lot of hardware installations.
+[5016 - 5420]:  This complements also expanded support in this release of Ubuntu for all kinds of displays
+[5420 - 6048]:  like E-Ink Hat series, the HyperPixel range, and even the Raspberry Pi official touchscreen.
+[6048 - 6808]:  The GNOME desktop was updated to version 43, which includes GTK4 theming for improved performance.
+[6808 - 7412]:  And Pipewire also becomes the default audio system with 22.10, along with Wireplumber
+[7412 - 8100]:  as the session manager, making this now a common stack across modern Linux desktops.
+[8100 - 8590]:  And finally, an area that Canonical was drawing special attention to is their new Steam Snap.
+[8590 - 9088]:  They noted that it includes the latest Mesa, presumably with the ability to decode video,
+[9088 - 9440]:  and gamers can now be confident they'll always be up to date, regardless of their
+[9440 - 9940]:  host OS, without needing to configure any of those gross PPAs that somebody came up
+[9940 - 10040]:  with.
+[10040 - 10420]:  And you know, maybe this isn't absolutely necessary on an interim release like this
+[10420 - 10852]:  particular one, but you could see how this Snap is going to be very useful on future
+[10852 - 10952]:  LTS releases.
+[10952 - 11324]:  But you can hear more of our thoughts on the overall release in Linux Unplugged episode
+[11324 - 12000]:  481.
+took 347.075330463s
