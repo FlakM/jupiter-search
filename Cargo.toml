@@ -7,7 +7,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.66"
+anyhow = { version = "1.0", features = ["std"] }
 rss = { version = "2.0.1", features = ["serde", "url"] }
 serde = { version = "1.0.147", features = ["derive"] }
 serde-xml-rs = "0.6.0"
@@ -21,5 +21,11 @@ regex = "1.6.0"
 
 
 # todo move to seperate crate
-audrey = "0.3"
 whisper-rs = "0.2.0"
+
+symphonia = { version = "0.5.1", features = ["mp3"] }
+rubato = "0.12.0"
+
+
+audrey = "0.3"
+uuid = { version = "1.2.1", features = ["v4"] }

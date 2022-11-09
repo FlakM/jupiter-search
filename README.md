@@ -71,7 +71,7 @@ curl https://feed.jupiter.zone/link/19057/15745245/55bb5263-04be-43a3-8b92-67807
    purposes) 
 
 ```
-ffmpeg -i action.mp3 -ar 16000 -T 60 action.wav
+ffmpeg -i action.mp3 -ar 16000 -T 60 action_short.wav
 ```
 
 4. Run the inference example
@@ -80,7 +80,7 @@ ffmpeg -i action.mp3 -ar 16000 -T 60 action.wav
 cd whisper.cpp
 make
 cd -
-cargo run --release --example=get_transcript -- models action_short.wav | tee output.txt
+cargo run --release --example=get_transcript -- models/ggml-medium.en.bin action_short.wav | tee output.txt
     Finished release [optimized] target(s) in 0.10s
      Running `target/release/examples/get_transcript models action_short.wav`
 TensorFlow: v2.3.0-6-g23ad988fcde
