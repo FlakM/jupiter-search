@@ -12,20 +12,14 @@
 
           # necessary to override nix's defaults which cannot be overriden as others are
           shellHook = ''
-            export CC="${pkgs.clang}/bin/clang"
-            export CXX="${pkgs.clang}/bin/clang++"
             export LIBCLANG_PATH="${pkgs.libclang.lib}/lib"
-            #rustup override set stable
             '';
 
         nativeBuildInputs = [ pkgs.bashInteractive ];
         buildInputs = with pkgs; [
-          openssl
+          openssl # used for meilisearch
           llvmPackages.libclang
           llvmPackages.clang
-          clangStdenv
-          libiconv
-          blas
           ffmpeg
         ] ++ lib.optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
             AppKit
