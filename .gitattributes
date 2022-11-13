@@ -1,0 +1,2 @@
+stt/resources/ggml-tiny.en.bin filter=lfs diff=lfs merge=lfs -text
+stt/resources/super_short.wav filter=lfs diff=lfs merge=lfs -text

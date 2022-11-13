@@ -1,26 +1,38 @@
 use anyhow::{anyhow, Result};
 use audrey::Reader;
 use std::env::temp_dir;
+use std::path::Path;
+use std::process::Stdio;
 use std::{fs::File, process::Command};
 
 // this is a dirty workaround because I suck at audio processing
 // and i could not for the love of god get the decoder.rs to work
 //
-// ffmpeg -i input.mp3 -ar 16000 -ac 1 -c:a pcm_s16le output.wav
-fn use_ffmpeg(input_path: &str) -> Result<Vec<i16>> {
+// ffmpeg -i input.mp3 -ar 16000 output.wav
+fn use_ffmpeg<P: AsRef<Path>>(input_path: P) -> Result<Vec<i16>> {
     let temp_file = temp_dir().join(format!("{}.wav", uuid::Uuid::new_v4()));
     let mut pid = Command::new("ffmpeg")
-        .arg("-i")
-        .arg(input_path)
-        .arg("-ar")
-        .arg("16000")
-        .arg(&temp_file)
+        .args([
+            "-i",
+            input_path
+                .as_ref()
+                .to_str()
+                .ok_or_else(|| anyhow!("invalid path"))?,
+            "-ar",
+            "16000",
+            (temp_file.to_str().unwrap()),
+            "-hide_banner",
+            "-y",
+            "-loglevel",
+            "error",
+        ])
+        .stdin(Stdio::null())
         .spawn()?;
 
     if pid.wait()?.success() {
         let output = File::open(&temp_file)?;
         let mut reader = Reader::new(output)?;
-        let samples: Result<Vec<i16>, _> = reader.samples().map(|s| s).collect();
+        let samples: Result<Vec<i16>, _> = reader.samples().collect();
         std::fs::remove_file(temp_file)?;
         samples.map_err(|e| e.into())
     } else {
@@ -28,10 +40,17 @@ fn use_ffmpeg(input_path: &str) -> Result<Vec<i16>> {
     }
 }
 
-pub fn read_file(audio_file_path: String) -> Vec<f32> {
-    let audio_buf = use_ffmpeg(&audio_file_path).unwrap();
-    let audio_data = whisper_rs::convert_stereo_to_mono_audio(
+pub fn read_file<P: AsRef<Path>>(audio_file_path: P) -> Result<Vec<f32>> {
+    let audio_buf = use_ffmpeg(&audio_file_path)?;
+    Ok(whisper_rs::convert_stereo_to_mono_audio(
         &whisper_rs::convert_integer_to_float_audio(&audio_buf),
-    );
-    audio_data
+    ))
+}
+
+pub fn convert_stereo_to_mono_audio(samples: &[f32]) -> Vec<f32> {
+    let mut mono = Vec::with_capacity(samples.len() / 2);
+    for i in (0..samples.len()).step_by(2) {
+        mono.push((samples[i] + samples[i + 1]) / 2.0);
+    }
+    mono
 }

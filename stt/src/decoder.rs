@@ -1,4 +1,13 @@
-use std::io::ErrorKind;
+use audrey::Reader;
+use byteorder::{LittleEndian, ReadBytesExt};
+use std::io::prelude::*;
+use std::io::{Cursor, ErrorKind};
+
+use anyhow::Result;
+use audrey::hound::{WavSpec, WavWriter};
+use rubato::{InterpolationParameters, InterpolationType, Resampler, SincFixedIn, WindowFunction};
+use std::path::Path;
+use std::{f32, vec};
 
 use symphonia::core::audio::SampleBuffer;
 use symphonia::core::codecs::{DecoderOptions, CODEC_TYPE_NULL};
@@ -8,12 +17,15 @@ use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
 
-use rubato::{InterpolationParameters, InterpolationType, Resampler, SincFixedIn, WindowFunction};
-
-// This should baiscally return the 
+// This should baiscally return the
 // ffmpeg -i input.mp3 -ar 16000 -ac 1 -c:a pcm_s16le output.wav
-pub fn read_file(audio_file_path: String) -> Vec<f32> {
-    let src = std::fs::File::open(audio_file_path).expect("failed to open media");
+pub fn read_file<P: AsRef<Path>>(audio_file_path: P) -> Result<Vec<f32>> {
+    
+    //if "1" == "1" {
+    //    panic!("this should not be used");
+    //}
+
+    let src = std::fs::File::open(audio_file_path.as_ref()).expect("failed to open media");
     let mss = MediaSourceStream::new(Box::new(src), Default::default());
 
     let mut hint = Hint::new();
@@ -63,8 +75,8 @@ pub fn read_file(audio_file_path: String) -> Vec<f32> {
             }
             Err(Error::IoError(error)) => match error.kind() {
                 ErrorKind::UnexpectedEof => {
-                    continue;
-                    //break;
+                    //continue;
+                    break;
                 }
                 _ => panic!("{}", error),
             },
@@ -110,8 +122,8 @@ pub fn read_file(audio_file_path: String) -> Vec<f32> {
     println!(">>>> {}", input_params.sample_rate.unwrap());
     let source_samples = sample_buf.unwrap();
     let mut resampler = SincFixedIn::<f32>::new(
-        16000 as f64 / input_params.sample_rate.unwrap() as f64,
-        5.0,
+        16000_f64 / input_params.sample_rate.unwrap() as f64,
+        1.0,
         params,
         source_samples.len(),
         1,
@@ -119,6 +131,49 @@ pub fn read_file(audio_file_path: String) -> Vec<f32> {
     .unwrap();
 
     let waves_in = vec![source_samples.samples()];
-    let mut waves_out = resampler.process(&waves_in, None).unwrap();
-    waves_out.pop().unwrap()
+    let mut waves_out: Vec<Vec<f32>> = resampler.process(&waves_in, None)?;
+    let ch0 = waves_out.pop().unwrap();
+
+    let spec = WavSpec {
+        channels: 1,
+        sample_rate: 16000,
+        bits_per_sample: 16,
+        sample_format: hound::SampleFormat::Int,
+    };
+
+    let mut ram_resampled = vec![];
+
+    for s in ch0.into_iter() {
+        let bytes = s.to_le_bytes();
+        ram_resampled.write_all(&bytes).unwrap();
+    }
+
+    let mut reader = Cursor::new(ram_resampled);
+    let mut wrtr = Cursor::new(vec![]);
+
+    {
+        let mut writer = WavWriter::new(&mut wrtr, spec).unwrap();
+
+        let mut value: std::io::Result<f32>;
+        loop {
+            value = reader.read_f32::<LittleEndian>();
+
+            match value {
+                Ok(x) => writer.write_sample::<f32>(x).unwrap(),
+                Err(_) => break,
+            }
+        }
+    }
+
+    wrtr.seek(std::io::SeekFrom::Start(0)).unwrap();
+    let mut reader = Reader::new(wrtr)?;
+    let samples: Result<Vec<i16>, _> = reader.samples().collect();
+    let samples = samples?;
+    println!("samples len: {}", samples.len());
+
+    Ok(whisper_rs::convert_stereo_to_mono_audio(
+        &whisper_rs::convert_integer_to_float_audio(&samples),
+    ))
+    //let writer = writer.get_i16_writer(writer.len());
+    //
 }
