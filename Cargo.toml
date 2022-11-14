@@ -3,4 +3,6 @@
 members = [
     "search-load",
     "stt",
+    "downloader",
+    "common"
 ]
