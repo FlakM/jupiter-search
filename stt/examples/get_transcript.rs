@@ -12,7 +12,7 @@ fn main() -> Result<()> {
 
     let mut stt = SttContext::try_new(&model_file_path)?;
 
-    let transcipt = stt.get_transcript_file(audio_file_path, false)?;
+    let transcipt = stt.get_transcript_file(audio_file_path, true, 12)?;
 
     for Utternace { start, stop, text } in transcipt.utterances {
         println!("{start} - {stop}\t\t{text}");

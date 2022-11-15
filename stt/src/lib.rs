@@ -6,17 +6,19 @@ use std::{
 use anyhow::{anyhow, bail, Result};
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext};
 
+use serde::{Deserialize, Serialize};
+
 pub mod decoder;
 pub mod ffmpeg_decoder;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Utternace {
     pub start: i64,
     pub stop: i64,
     pub text: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Transcript {
     pub utterances: Vec<Utternace>,
     pub processing_time: Duration,
@@ -50,25 +52,32 @@ impl SttContext {
         &mut self,
         path: P,
         debug: bool,
+        threads: u8,
     ) -> Result<Transcript> {
         let decoded = ffmpeg_decoder::read_file(path)?;
-        self.get_transcript(&decoded, debug)
+        self.get_transcript(&decoded, debug, threads)
     }
 
-    fn get_transcript(&mut self, input_bytes: &[f32], debug: bool) -> Result<Transcript> {
+    fn get_transcript(
+        &mut self,
+        input_bytes: &[f32],
+        debug: bool,
+        threads: u8,
+    ) -> Result<Transcript> {
         let mut params = FullParams::new(SamplingStrategy::Greedy { n_past: 0 });
 
-        //params.set_n_threads(6);
+        params.set_n_threads(threads as i32);
         params.set_print_special_tokens(debug);
         params.set_print_progress(debug);
 
         let ctx = &mut self.whisper_context;
         let st = Instant::now();
 
+        eprintln!("feed the algo");
+
         ctx.full(params, input_bytes)
             .map_err(|_| anyhow!("failed to run moder"))?;
 
-        println!("feed the algo");
         let num_segments = ctx.full_n_segments();
 
         let mut utterances = vec![];
@@ -102,13 +111,13 @@ impl SttContext {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[allow(dead_code)]
     #[test]
     fn stt_works() {
         let mut ctx = SttContext::try_new("resources/ggml-tiny.en.bin").unwrap();
         let t = ctx
-            .get_transcript_file("resources/super_short.mp3", false)
+            .get_transcript_file("resources/super_short.mp3", true, 12)
             .unwrap();
         println!("{:?}", t);
         assert!(t.utterances.len() > 0)

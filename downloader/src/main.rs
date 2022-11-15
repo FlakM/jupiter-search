@@ -1,37 +1,70 @@
-use std::{convert::{TryFrom, TryInto}, env::{args, temp_dir}, fs::File, io::Cursor, path::{Path, PathBuf}};
+use std::{
+    convert::{TryFrom, TryInto},
+    env::{args, temp_dir},
+    io::Cursor,
+    path::PathBuf, fs::File, str::FromStr,
+};
 
 use anyhow::{Context, Result};
 use common::{AllEpisodes, Episode};
+use downloader::{metadata::Metadata, episode_full::EpisodeFull};
 use reqwest::Client;
 use rss::Enclosure;
+use stt::SttContext;
 
+
+// cargo run --release https://feed.jupiter.zone/allshows ../stt/resources/ggml-tiny.en.bin .
 #[tokio::main]
 async fn main() -> Result<()> {
     let rss_url = args()
         .nth(1)
         .context("provide url to rss as first argument")?;
 
+    let model_file_path = args().nth(2).expect("Please model path as param 2");
+    let output_dir = args().nth(3).expect("Please provide output dir as param 3");
+
     let client = Client::new();
 
     let rss_content = client.get(rss_url).send().await?.text().await?;
 
     let mut episodes: Vec<Episode> = AllEpisodes::try_from(rss_content)?.episodes;
-    episodes.sort_by(|a, b| b.pub_date.cmp(&a.pub_date)); // we want download the latest first
-    
-    let first = episodes.pop().unwrap();
+    episodes.sort_by(|a, b| a.pub_date.cmp(&b.pub_date)); // we want download the latest first
 
-    println!("episode: {:?}", first);
-    let mp3 = download_episode(client, first.enclosure).await?;
-    println!("downloaded to {}", mp3.as_path().to_str().unwrap());
+    for episode in episodes.into_iter().take(1) {
+        let file_target = PathBuf::from_str(&output_dir)?.join(format!("{}.json", episode.id));
+
+        if !file_target.exists() {
+            let mut context =  SttContext::try_new(&model_file_path)?;
+            let full = process_episode(client.clone(), episode, &mut context).await?;
+            serde_json::to_writer_pretty(&File::create(file_target)?, &full)?;
+        } else {
+            eprintln!("Skipping downloading a file for episode {} since it seems to be already present!", episode.title);
+        }
+    }
 
     Ok(())
 }
 
-async fn download_episode(client: Client, data: Enclosure) -> Result<PathBuf> {
+async fn process_episode(
+    client: Client,
+    episode: Episode,
+    whisper_context: &mut SttContext,
+) -> Result<EpisodeFull> {
+    let path = download_episode(client, &episode.enclosure).await?;
+    let metadata: Metadata = path.as_path().try_into()?;
+    let transcript = whisper_context.get_transcript_file(path.as_path(), true, 12)?;
+    Ok(EpisodeFull {
+        transcript,
+        metadata,
+        episode,
+    })
+}
+
+async fn download_episode(client: Client, data: &Enclosure) -> Result<PathBuf> {
     let temp_file = temp_dir().join(format!("{}.mp3", uuid::Uuid::new_v4()));
     let mut file = std::fs::File::create(&temp_file)?;
-    let  bytes = client.get(data.url()).send().await?.bytes().await?;
-    let  mut content =  Cursor::new(bytes); 
+    let bytes = client.get(data.url()).send().await?.bytes().await?;
+    let mut content = Cursor::new(bytes);
     std::io::copy(&mut content, &mut file)?;
     Ok(temp_file)
 }

@@ -27,6 +27,7 @@ pub struct AllEpisodes {
     pub episodes: Vec<Episode>
 }
 
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Episode {
     /// id has to contain only letters: a-zA-Z0-9 and has to be unique
