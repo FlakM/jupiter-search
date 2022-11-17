@@ -1,7 +1,6 @@
 use std::{
     convert::{TryFrom, TryInto},
     env::{args, temp_dir},
-    io::Cursor,
     path::PathBuf, fs::File, str::FromStr,
 };
 
@@ -20,9 +19,9 @@ async fn main() -> Result<()> {
         .nth(1)
         .context("provide url to rss as first argument")?;
 
-    /// TODO: There are some situation when `args()` will return all arguments only once and will
-    /// so output_dir will fail, this may require using crate like `gumdrop`, `structopt` or
-    /// `clap`. Be aware that newest `clap` fail on nix
+    // TODO: There are some situation when `args()` will return all arguments only once and will
+    // so output_dir will fail, this may require using crate like `gumdrop`, `structopt` or
+    // `clap`. Be aware that newest `clap` fail on nix
     let model_file_path = args().nth(2).expect("Please model path as param 2");
     let output_dir = args().nth(3).expect("Please provide output dir as param 3");
 
