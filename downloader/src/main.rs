@@ -20,6 +20,9 @@ async fn main() -> Result<()> {
         .nth(1)
         .context("provide url to rss as first argument")?;
 
+    /// TODO: There are some situation when `args()` will return all arguments only once and will
+    /// so output_dir will fail, this may require using crate like `gumdrop`, `structopt` or
+    /// `clap`. Be aware that newest `clap` fail on nix
     let model_file_path = args().nth(2).expect("Please model path as param 2");
     let output_dir = args().nth(3).expect("Please provide output dir as param 3");
 
@@ -60,11 +63,16 @@ async fn process_episode(
     })
 }
 
+/// Download remote resource without allocating too much memory
 async fn download_episode(client: Client, data: &Enclosure) -> Result<PathBuf> {
+    use std::io::Write;
+    use futures_util::StreamExt;
+
     let temp_file = temp_dir().join(format!("{}.mp3", uuid::Uuid::new_v4()));
     let mut file = std::fs::File::create(&temp_file)?;
-    let bytes = client.get(data.url()).send().await?.bytes().await?;
-    let mut content = Cursor::new(bytes);
-    std::io::copy(&mut content, &mut file)?;
+    let mut stream = client.get(data.url()).send().await?.bytes_stream();
+    while let Some(bytes) = stream.next().await {
+        file.write_all(bytes?.as_ref())?;
+    }
     Ok(temp_file)
 }
