@@ -20,7 +20,6 @@ use symphonia::core::probe::Hint;
 // This should baiscally return the
 // ffmpeg -i input.mp3 -ar 16000 -ac 1 -c:a pcm_s16le output.wav
 pub fn read_file<P: AsRef<Path>>(audio_file_path: P) -> Result<Vec<f32>> {
-    
     //if "1" == "1" {
     //    panic!("this should not be used");
     //}

@@ -20,6 +20,10 @@ fn use_ffmpeg<P: AsRef<Path>>(input_path: P) -> Result<Vec<i16>> {
                 .ok_or_else(|| anyhow!("invalid path"))?,
             "-ar",
             "16000",
+            "-ac",
+            "1",
+            "-c:a",
+            "pcm_s16le",
             (temp_file.to_str().unwrap()),
             "-hide_banner",
             "-y",
@@ -42,9 +46,7 @@ fn use_ffmpeg<P: AsRef<Path>>(input_path: P) -> Result<Vec<i16>> {
 
 pub fn read_file<P: AsRef<Path>>(audio_file_path: P) -> Result<Vec<f32>> {
     let audio_buf = use_ffmpeg(&audio_file_path)?;
-    Ok(whisper_rs::convert_stereo_to_mono_audio(
-        &whisper_rs::convert_integer_to_float_audio(&audio_buf),
-    ))
+    Ok(whisper_rs::convert_integer_to_float_audio(&audio_buf))
 }
 
 pub fn convert_stereo_to_mono_audio(samples: &[f32]) -> Vec<f32> {

@@ -5,7 +5,6 @@ use common::AllEpisodes;
 use common::Episode;
 use meilisearch_sdk::{settings::Settings, task_info::TaskInfo, Client};
 
-
 #[tokio::main]
 async fn main() -> Result<()> {
     let content = include_str!("../all_shows.xml").to_string();

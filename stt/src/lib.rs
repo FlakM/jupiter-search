@@ -69,6 +69,7 @@ impl SttContext {
         params.set_n_threads(threads as i32);
         params.set_print_special_tokens(debug);
         params.set_print_progress(debug);
+        params.set_print_timestamps(debug);
 
         let ctx = &mut self.whisper_context;
         let st = Instant::now();

@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use core::slice;
 use std::fs::OpenOptions;
-use std::io::Write; 
+use std::io::Write;
 use std::{env::args, mem};
 
 /// Converts provided audio file to wav

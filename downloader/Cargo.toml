@@ -20,3 +20,4 @@ common = { path = "../common" }
 stt = { path = "../stt" }
 lofty = "0.9.0"
 base64 = "0.13.1"
+futures = "0.3.25"

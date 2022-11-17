@@ -17,18 +17,17 @@ impl TryFrom<String> for AllEpisodes {
             .into_iter()
             .map(|i| i.try_into())
             .collect::<Result<_>>()?;
-        Ok(AllEpisodes{episodes})
+        Ok(AllEpisodes { episodes })
     }
 
     type Error = anyhow::Error;
 }
 
 pub struct AllEpisodes {
-    pub episodes: Vec<Episode>
+    pub episodes: Vec<Episode>,
 }
 
-
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Episode {
     /// id has to contain only letters: a-zA-Z0-9 and has to be unique
     pub id: String,

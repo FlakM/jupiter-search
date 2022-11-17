@@ -30,6 +30,12 @@ cargo build --release --examples
 patchelf --set-interpreter /usr/lib64/ld-linux-x86-64.so.2 target/release/examples/get_transcript
 ```
 
+To appease the gods of good taste please add following pre commit hook:
+
+```
+git config --local core.hooksPath .githooks
+```
+
 ## Installation
 
 ### Install meilisearch
