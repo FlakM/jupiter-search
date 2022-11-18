@@ -31,6 +31,8 @@ jobs:
           lfs: true
       - name: Checkout LFS objects
         run: git lfs checkout
+      - name: List the contents of the file
+        run: ls -al stt/resources/ 
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
