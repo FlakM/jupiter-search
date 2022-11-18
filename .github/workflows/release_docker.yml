@@ -7,11 +7,6 @@ on:
 
 name: Build and release docker images
 
-
-
-env:
-  DOCKER_BUILDKIT: 1 
-
 jobs:
 
   docker_build:
@@ -45,8 +40,6 @@ jobs:
         with:
           push: true
           tags: flakm/downloader:latest
-          cache-from: type=local,src=/tmp/.cache
-          cache-to: type=local,dest=/tmp/.cache
 
       - name: Build and push
         if: startsWith(github.ref, 'refs/tags/v')
@@ -54,5 +47,3 @@ jobs:
         with:
           push: true
           tags: flakm/downloader:${{ github.ref }}
-          cache-from: type=local,src=/tmp/.cache
-          cache-to: type=local,dest=/tmp/.cache
