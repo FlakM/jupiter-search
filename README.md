@@ -1,6 +1,8 @@
 # jupiter-search
 
-Showcase for indexing jupiter network podcasts using meilisearch.
+![build status](https://github.com/github/jupiter-search/actions/workflows/build.yml/badge.svg)
+
+Showcase for indexing [jupiter network](https://www.jupiterbroadcasting.com/) podcasts using [meilisearch](https://www.meilisearch.com/).
 This repository is build in order to provide possible solution to following problems:
 
 - [search](https://github.com/JupiterBroadcasting/jupiterbroadcasting.com/issues/26)
@@ -25,9 +27,7 @@ just run `direnv allow` and run:
 
 ```shell
 git submodule update --init --recursive
-cargo build --release --examples
-# if you are using nix os and want to use the binary you should fix the interpreter
-patchelf --set-interpreter /usr/lib64/ld-linux-x86-64.so.2 target/release/examples/get_transcript
+cargo build --release
 ```
 
 To appease the gods of good taste please add following pre commit hook:
@@ -36,7 +36,14 @@ To appease the gods of good taste please add following pre commit hook:
 git config --local core.hooksPath .githooks
 ```
 
-## Installation
+## Usage
+
+### Run downloading podcasts
+
+### Process audio from RSS feed
+
+TODO
+
 
 ### Install meilisearch
 
@@ -51,9 +58,6 @@ docker run -it --rm \
 ```
 
 ### Run index creation and data loading
-
-`cargo run`
-
 
 ### Running inference of some audio
 

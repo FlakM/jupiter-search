@@ -39,11 +39,11 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: flakm/downloader:latest
+          tags: flakm/podcast2text:latest
 
       - name: Build and push
         if: startsWith(github.ref, 'refs/tags/v')
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: flakm/downloader:${{ github.ref }}
+          tags: flakm/podcast2text:${{ github.ref }}
