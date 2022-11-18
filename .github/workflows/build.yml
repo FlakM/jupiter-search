@@ -1,6 +1,8 @@
 on:
-  push: {}
-  pull_request: {}
+  push: 
+    - '*'
+  pull_request:
+    - '*'
   tags:
     - 'v*'
 
@@ -107,4 +109,4 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           command: publish 
-          args: -p downloader
+          args: -p podcast2text
