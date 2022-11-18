@@ -7,6 +7,11 @@ on:
 
 name: Build and release docker images
 
+
+
+env:
+  DOCKER_BUILDKIT: 1 
+
 jobs:
 
   docker_build:
