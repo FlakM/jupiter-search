@@ -11,5 +11,5 @@ Cargo.lock
 
 /models*/
 
-*.wav
-*.mp3
+/*.wav
+/*.mp3
