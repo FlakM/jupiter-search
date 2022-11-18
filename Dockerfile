@@ -8,12 +8,12 @@ RUN apt-get update && \
 COPY . .
 
 # to enable caching you might change commented out lines and run docker build using:
-#   DOCKER_BUILDKIT=1 docker build -t downloader .
+#   DOCKER_BUILDKIT=1 docker build -t podcast2text .
 #
 #RUN --mount=type=cache,target=/usr/local/cargo/registry \
 #    --mount=type=cache,target=/home/root/app/target \
-#    cargo build --release -p downloader
-RUN cargo build --release -p downloader
+#    cargo build --release -p podcast2text
+RUN cargo build --release -p podcast2text
 
 FROM ubuntu:20.04 as runtime
 
@@ -23,6 +23,6 @@ RUN apt-get update && apt-get upgrade && \
     apt-get install -y ffmpeg openssl
 
 
-#RUN --mount=type=cache,target=/home/root/app/target cp /home/root/app/target/release/downloader /usr/local/bin
-COPY --from=builder /app/target/release/downloader /usr/local/bin
-CMD ["/usr/local/bin/downloader"]
+#RUN --mount=type=cache,target=/home/root/app/target cp /home/root/app/target/release/podcast2text /usr/local/bin
+COPY --from=builder /app/target/release/podcast2text /usr/local/bin
+CMD ["/usr/local/bin/podcast2text"]

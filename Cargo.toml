@@ -3,9 +3,9 @@
 members = [
     "search-load",
     "stt",
-    "downloader",
+    "podcast2text",
     "common"
 ]
 
 
-default-members = ["downloader"]
+default-members = ["podcast2text"]

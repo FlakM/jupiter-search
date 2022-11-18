@@ -107,6 +107,4 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           command: publish 
-          args: -p downloader --token ${CRATES_TOKEN}
-        env:
-          CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
+          args: -p downloader

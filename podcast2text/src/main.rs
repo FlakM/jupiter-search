@@ -11,7 +11,7 @@ use std::{
 
 use anyhow::{Context, Result};
 use common::{AllEpisodes, Episode};
-use downloader::{episode_full::EpisodeFull, metadata::Metadata};
+use podcast2text::{episode_full::EpisodeFull, metadata::Metadata};
 use reqwest::Client;
 use rss::Enclosure;
 use stt::SttContext;
