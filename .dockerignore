@@ -1,0 +1,8 @@
+**/target/ 
+**/*.rs.bk 
+
+
+/models*/
+
+*.wav
+*.mp3
