@@ -1,6 +1,3 @@
-
-
-
 FROM rust as builder
 WORKDIR app
 
@@ -28,4 +25,4 @@ RUN apt-get update && apt-get upgrade && \
 
 #RUN --mount=type=cache,target=/home/root/app/target cp /home/root/app/target/release/downloader /usr/local/bin
 COPY --from=builder /app/target/release/downloader /usr/local/bin
-ENTRYPOINT ["./usr/local/bin/downloader"]
+CMD ["/usr/local/bin/downloader"]
