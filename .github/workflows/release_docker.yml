@@ -46,7 +46,7 @@ jobs:
           push: true
           tags: flakm/downloader:latest
           cache-from: type=local,src=/tmp/.cache
-          cache-to: type=local,target=/home/root/app/target
+          cache-to: type=local,dest=/home/root/app/target
 
       - name: Build and push
         if: startsWith(github.ref, 'refs/tags/v')
@@ -55,4 +55,4 @@ jobs:
           push: true
           tags: flakm/downloader:${{ github.ref }}
           cache-from: type=local,src=/tmp/.cache
-          cache-to: type=local,target=/home/root/app/target
+          cache-to: type=local,dest=/home/root/app/target
