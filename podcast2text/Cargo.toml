@@ -16,3 +16,4 @@ serde = { version = "1.0.147", features = ["derive"] }
 
 common = { path = "../common" }
 downloader = { path = "../downloader" }
+clap = { version = "4.0.26", features = ["derive", "env"] }

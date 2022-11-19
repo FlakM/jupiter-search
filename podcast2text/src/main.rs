@@ -1,30 +1,62 @@
-use std::env::args;
-
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Result};
+use clap::Parser;
+use cli::Cli;
 use downloader::Downloader;
 
-// cargo run --release https://feed.jupiter.zone/allshows ../stt/resources/ggml-tiny.en.bin .
+mod cli;
+
 #[tokio::main]
 async fn main() -> Result<()> {
-    let rss_url = args()
-        .nth(1)
-        .context("provide url to rss as first argument")?;
-
-    let model_file_path = args().nth(2).expect("Please model path as param 2");
-    let output_dir = args().nth(3).expect("Please provide output dir as param 3");
-
-    let worker_count = args()
-        .nth(4)
-        .expect("Please provide worker count as param 4")
-        .parse::<usize>()?;
-
+    let cli = cli::Cli::parse();
     let downloader = Downloader::default();
 
-    let results = downloader
-        .download_rss(rss_url, worker_count, model_file_path, output_dir)
-        .await?;
+    match &cli.command {
+        cli::Commands::Rss {
+            rss_url,
+            num_of_episodes,
+            worker_count,
+        } => {
+            let (threads_per_worker, workers) = validate_worker_params(&cli, worker_count)?;
+            let wd = match cli.output_path {
+                None => std::env::current_dir()?,
+                Some(dir) => dir,
+            };
+            let results = downloader
+                .download_rss(
+                    rss_url,
+                    workers,
+                    &cli.model_path,
+                    &wd,
+                    *num_of_episodes,
+                    cli.debug,
+                    threads_per_worker,
+                )
+                .await?;
 
-    println!("{:?}", results);
+            println!("{:?}", results);
+        }
+
+        cli::Commands::File { auido_file: _ } => todo!(),
+    }
 
     Ok(())
+}
+
+fn validate_worker_params(params: &Cli, worker_count: &Option<usize>) -> Result<(usize, usize)> {
+    let num_cpus: usize = std::thread::available_parallelism()
+        .map_err(|e| anyhow!("unable to obtain paralelism {}", e))?
+        .get();
+    let threads_per_worker = params.threads_per_worker;
+
+    let workers = match *worker_count {
+        None => num_cpus / threads_per_worker,
+        Some(n) => n,
+    };
+    if workers * threads_per_worker > num_cpus {
+        return Err(anyhow!("Provided parameter --worker_count ({}) and --threads_per_worker ({}) multiplied should be less then total avaialable parallelism ({})",
+            workers, threads_per_worker, num_cpus
+                ));
+    }
+
+    Ok((threads_per_worker, workers))
 }

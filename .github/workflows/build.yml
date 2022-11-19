@@ -38,9 +38,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'true'
-          lfs: true
-      - name: Checkout LFS objects
-        run: git lfs checkout
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -58,7 +55,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'true'
-          lfs: true
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -78,7 +74,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'true'
-          lfs: true
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -100,9 +95,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'true'
-          lfs: true
-      - name: Checkout LFS objects
-        run: git lfs checkout
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal

@@ -7,8 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Checkout LFS objects
-        run: git lfs checkout
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal

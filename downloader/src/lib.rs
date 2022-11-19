@@ -1,5 +1,9 @@
 use std::{
-    collections::VecDeque, env::temp_dir, fs::File, io::Cursor, path::PathBuf, str::FromStr,
+    collections::VecDeque,
+    env::temp_dir,
+    fs::File,
+    io::Cursor,
+    path::{Path, PathBuf},
 };
 
 use anyhow::{anyhow, Result};
@@ -37,27 +41,31 @@ impl Downloader {
         }
     }
 
-    pub async fn download_rss(
+    pub async fn download_rss<'a>(
         &self,
-        rss_url: String,
+        rss_url: &'a str,
         worker_count: usize,
-        model_file_path: String,
-        output_dir: String,
+        model_file_path: &Path,
+        output_dir: &Path,
+        n_elements: Option<usize>,
+        debug: bool,
+        threads_per_worker: usize,
     ) -> Result<Vec<Result<Vec<TranscriptionResult>>>> {
         let client = self.client.clone();
 
         let rss_content = client.get(rss_url).send().await?.text().await?;
 
         let mut episodes: Vec<Episode> = AllEpisodes::try_from(rss_content)?.episodes;
-        episodes.sort_by(|a, b| a.pub_date.cmp(&b.pub_date)); // we want download the latest first
+        episodes.sort_by(|a, b| b.pub_date.cmp(&a.pub_date)); // we want download the latest first
+
+        let num = n_elements.ok_or(episodes.len()).unwrap_or_default();
 
         //let chunk_length = episodes.len() / worker_count;
-        let chunk_length = 1 / worker_count;
+        let chunk_length = num / worker_count;
         let mut chunks: VecDeque<Vec<Episode>> =
             episodes
                 .into_iter()
-                .skip(10)
-                .take(1)
+                .take(num)
                 .fold(VecDeque::new(), |mut acc, a| {
                     if acc.is_empty() {
                         acc.push_back(vec![a])
@@ -77,15 +85,15 @@ impl Downloader {
         for worker in 0..worker_count {
             let client = client.clone();
             let chunk = chunks.pop_front().unwrap();
-            let dir = output_dir.clone();
-            let model_file_path = model_file_path.clone();
+            let dir = output_dir.to_path_buf();
+            let model_file_path = model_file_path.to_path_buf();
             let handle = tokio::spawn(async move {
                 println!("#{} - starting new task for worker ", worker);
                 let mut context = SttContext::try_new(&model_file_path)?;
 
                 let mut downloaded = vec![];
                 for episode in chunk {
-                    let file_target = PathBuf::from_str(&dir)?.join(format!("{}.json", episode.id));
+                    let file_target = dir.join(format!("{}.json", episode.id));
                     println!(
                         "#{} - transcribing episode {} in file {}",
                         worker,
@@ -93,8 +101,14 @@ impl Downloader {
                         file_target.to_string_lossy()
                     );
                     if !file_target.exists() {
-                        let full =
-                            process_episode(client.clone(), episode.clone(), &mut context).await?;
+                        let full = process_episode(
+                            client.clone(),
+                            episode.clone(),
+                            &mut context,
+                            threads_per_worker,
+                            debug,
+                        )
+                        .await?;
                         serde_json::to_writer_pretty(&File::create(file_target)?, &full)?;
                         downloaded.push(TranscriptionResult::Downloaded {
                             title: episode.title,
@@ -127,10 +141,13 @@ pub async fn process_episode(
     client: Client,
     episode: Episode,
     whisper_context: &mut SttContext,
+    threads_per_worker: usize,
+    debug: bool,
 ) -> Result<EpisodeFull> {
     let path = download_episode(client, &episode.enclosure).await?;
     let metadata: Metadata = path.as_path().try_into()?;
-    let transcript = whisper_context.get_transcript_file(path.as_path(), true, 6)?;
+    let transcript =
+        whisper_context.get_transcript_file(path.as_path(), debug, threads_per_worker as u8)?;
     Ok(EpisodeFull {
         transcript,
         metadata,

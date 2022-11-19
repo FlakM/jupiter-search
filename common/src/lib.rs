@@ -2,6 +2,8 @@ use std::convert::TryFrom;
 
 use anyhow::anyhow;
 use anyhow::Result;
+use chrono::offset::FixedOffset;
+use chrono::DateTime;
 use regex::Regex;
 use rss::Enclosure;
 use rss::{Channel, Item};
@@ -36,7 +38,7 @@ pub struct Episode {
     pub content: Option<String>,
     pub link: String,
     pub enclosure: Enclosure,
-    pub pub_date: String,
+    pub pub_date: DateTime<FixedOffset>,
 }
 
 impl TryFrom<Item> for Episode {
@@ -58,9 +60,11 @@ impl TryFrom<Item> for Episode {
             enclosure: episode
                 .enclosure
                 .ok_or_else(|| anyhow!("missing enclosure url"))?,
-            pub_date: episode
-                .pub_date
-                .ok_or_else(|| anyhow!("missing pubValue"))?,
+            pub_date: DateTime::parse_from_rfc2822(
+                &episode
+                    .pub_date
+                    .ok_or_else(|| anyhow!("missing pubValue"))?,
+            )?,
         };
 
         Ok(episode)
