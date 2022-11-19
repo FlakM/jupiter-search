@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use clap::Parser;
 use cli::Cli;
-use downloader::Downloader;
+use downloader::{DownloadParams, Downloader};
 
 mod cli;
 
@@ -21,17 +21,17 @@ async fn main() -> Result<()> {
                 None => std::env::current_dir()?,
                 Some(dir) => dir,
             };
-            let results = downloader
-                .download_rss(
-                    rss_url,
-                    workers,
-                    &cli.model_path,
-                    &wd,
-                    *num_of_episodes,
-                    cli.debug,
-                    threads_per_worker,
-                )
-                .await?;
+
+            let params = DownloadParams {
+                rss_url,
+                worker_count: workers,
+                model_file_path: &cli.model_path,
+                output_dir: &wd,
+                n_elements: *num_of_episodes,
+                debug: cli.debug,
+                threads_per_worker,
+            };
+            let results = downloader.download_rss(params).await?;
 
             println!("{:?}", results);
         }

@@ -34,6 +34,16 @@ impl Default for Downloader {
     }
 }
 
+pub struct DownloadParams<'a> {
+    pub rss_url: &'a str,
+    pub worker_count: usize,
+    pub model_file_path: &'a Path,
+    pub output_dir: &'a Path,
+    pub n_elements: Option<usize>,
+    pub debug: bool,
+    pub threads_per_worker: usize,
+}
+
 impl Downloader {
     pub fn new() -> Downloader {
         Downloader {
@@ -43,25 +53,19 @@ impl Downloader {
 
     pub async fn download_rss<'a>(
         &self,
-        rss_url: &'a str,
-        worker_count: usize,
-        model_file_path: &Path,
-        output_dir: &Path,
-        n_elements: Option<usize>,
-        debug: bool,
-        threads_per_worker: usize,
+        params: DownloadParams<'a>,
     ) -> Result<Vec<Result<Vec<TranscriptionResult>>>> {
         let client = self.client.clone();
 
-        let rss_content = client.get(rss_url).send().await?.text().await?;
+        let rss_content = client.get(params.rss_url).send().await?.text().await?;
 
         let mut episodes: Vec<Episode> = AllEpisodes::try_from(rss_content)?.episodes;
         episodes.sort_by(|a, b| b.pub_date.cmp(&a.pub_date)); // we want download the latest first
 
-        let num = n_elements.ok_or(episodes.len()).unwrap_or_default();
+        let num = params.n_elements.ok_or(episodes.len()).unwrap_or_default();
 
         //let chunk_length = episodes.len() / worker_count;
-        let chunk_length = num / worker_count;
+        let chunk_length = num / params.worker_count;
         let mut chunks: VecDeque<Vec<Episode>> =
             episodes
                 .into_iter()
@@ -82,11 +86,11 @@ impl Downloader {
                 });
 
         let mut handles = Vec::new();
-        for worker in 0..worker_count {
+        for worker in 0..params.worker_count {
             let client = client.clone();
             let chunk = chunks.pop_front().unwrap();
-            let dir = output_dir.to_path_buf();
-            let model_file_path = model_file_path.to_path_buf();
+            let dir = params.output_dir.to_path_buf();
+            let model_file_path = params.model_file_path.to_path_buf();
             let handle = tokio::spawn(async move {
                 println!("#{} - starting new task for worker ", worker);
                 let mut context = SttContext::try_new(&model_file_path)?;
@@ -105,8 +109,8 @@ impl Downloader {
                             client.clone(),
                             episode.clone(),
                             &mut context,
-                            threads_per_worker,
-                            debug,
+                            params.threads_per_worker,
+                            params.debug,
                         )
                         .await?;
                         serde_json::to_writer_pretty(&File::create(file_target)?, &full)?;

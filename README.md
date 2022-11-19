@@ -1,7 +1,16 @@
 # Jupiter Search
 
-![build status](https://github.com/flakm/jupiter-search/actions/workflows/build.yml/badge.svg)
-![mit-badge](https://img.shields.io/badge/license-MIT-blue.svg)
+[![Crates.io][crates-badge]][crates-url]
+[![MIT licensed][mit-badge]][mit-url]
+[![Build Status][actions-badge]][actions-url]
+
+[crates-badge]: https://img.shields.io/crates/v/podcast2text.svg
+[crates-url]: https://crates.io/crates/podcast2text
+[mit-badge]: https://img.shields.io/badge/license-MIT-blue.svg
+[mit-url]: https://github.com/tokio-rs/tokio/blob/master/LICENSE
+[actions-badge]: https://github.com/flakm/jupiter-search/actions/workflows/build.yml/badge.svg
+[actions-url]: https://github.com/FlakM/jupiter-search/actions
+
 
 A showcase for indexing [jupiter network](https://www.jupiterbroadcasting.com/) podcasts using [meilisearch](https://www.meilisearch.com/).
 This repository is build in order to provide possible solution to following problems:
