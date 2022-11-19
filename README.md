@@ -1,8 +1,9 @@
-# jupiter-search
+# Jupiter Search
 
-![build status](https://github.com/github/jupiter-search/actions/workflows/build.yml/badge.svg)
+![build status](https://github.com/flakm/jupiter-search/actions/workflows/build.yml/badge.svg)
+![mit-badge](https://img.shields.io/badge/license-MIT-blue.svg)
 
-Showcase for indexing [jupiter network](https://www.jupiterbroadcasting.com/) podcasts using [meilisearch](https://www.meilisearch.com/).
+A showcase for indexing [jupiter network](https://www.jupiterbroadcasting.com/) podcasts using [meilisearch](https://www.meilisearch.com/).
 This repository is build in order to provide possible solution to following problems:
 
 - [search](https://github.com/JupiterBroadcasting/jupiterbroadcasting.com/issues/26)
@@ -10,7 +11,15 @@ This repository is build in order to provide possible solution to following prob
 
 **DISCLAIMER!**
 
-Warning! This is a very dirty version to showcase how indexing/transcription might work.
+Warning! This is a work in progress version to showcase how indexing/transcription might work.
+
+## Overview
+
+Project contains two main modules:
+
+* `podcast2text` a cli tool for downloading RSS feed and transcribing podcast episodes 
+* `search-load` a cli tool for loading obtained transcriptions to
+  instance of meilisearch
 
 
 ## Building
