@@ -4,7 +4,9 @@ members = [
     "search-load",
     "stt",
     "podcast2text",
-    "common"
+    "common",
+    "downloader"
+
 ]
 
 
