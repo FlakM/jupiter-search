@@ -4,6 +4,6 @@ members = [
     "search-load",
     "stt",
     "podcast2text",
-    "common",
-    "downloader"
+    "jupiter_common",
+    "jupiter_downloader"
 ]

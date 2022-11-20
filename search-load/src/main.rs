@@ -1,8 +1,8 @@
 use std::convert::TryFrom;
 
 use anyhow::Result;
-use common::AllEpisodes;
-use common::Episode;
+use jupiter_common::AllEpisodes;
+use jupiter_common::Episode;
 use meilisearch_sdk::{settings::Settings, task_info::TaskInfo, Client};
 
 #[tokio::main]

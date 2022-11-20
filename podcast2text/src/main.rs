@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use clap::Parser;
 use cli::Cli;
-use downloader::{DownloadParams, Downloader};
+use jupiter_downloader::{DownloadParams, Downloader};
 
 mod cli;
 

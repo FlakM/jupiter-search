@@ -1,6 +1,6 @@
 [package]
 name = "search-load"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
 
 
@@ -14,4 +14,4 @@ meilisearch-sdk = "0.20"
 serde_json = "1.0"
 tokio = { version = "1.21.2", features = ["full"] }
 
-common = { path = "../common" }
+jupiter_common = { path = "../jupiter_common",  version = "0.0.1" }
