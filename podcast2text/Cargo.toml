@@ -3,7 +3,10 @@ name = "podcast2text"
 version = "0.0.1"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+license = "MIT"
+description = "Cli tool for downloading episodes from rss and running transcription"
+repository = "https://github.com/flakm/jupiter-search"
+
 
 [dependencies]
 anyhow = "1.0.66"

@@ -89,7 +89,7 @@ jobs:
   release:
     name: Release crate
     runs-on: ubuntu-latest
-    needs: [check, test]
+    needs: [check, test, clippy, fmt]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2

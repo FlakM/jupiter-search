@@ -2,7 +2,9 @@
 name = "jupiter_downloader"
 version = "0.0.1"
 edition = "2021"
-
+license = "MIT"
+description = "Library for downloading episodes from rss and running transcription"
+repository = "https://github.com/flakm/jupiter-search"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
