@@ -15,3 +15,6 @@ jobs:
       - uses: actions-rs/audit-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          # this ignores the issue https://github.com/FlakM/jupiter-search/issues/9
+          # https://www.reddit.com/r/rust/comments/rmgarc/six_weeks_in_how_are_folks_handling_the/
+          args: --ignore RUSTSEC-2020-0159 --ignore RUSTSEC-2020-0071 
