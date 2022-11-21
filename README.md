@@ -63,7 +63,30 @@ git config --local core.hooksPath .githooks
 
 ### Process audio from RSS feed
 
-TODO
+
+1. Download the whisper model
+
+```shell
+mkdir models
+# this might be one of:
+# "tiny.en" "tiny" "base.en" "base" "small.en" "small" "medium.en" "medium" "large"
+model=medium.en
+curl --output models/model.bin https://ggml.ggerganov.com/ggml-model-whisper-$model.bin
+```
+
+2. Run the inference on the RSS feed
+
+```shell
+# get information about the cli
+docker run flakm/podcast2text --help
+
+docker run \
+    -v $PWD/models:/data/models \
+    flakm/podcast2text \
+    rss https://feed.jupiter.zone/allshows
+```
+
+
 
 
 ### Install meilisearch

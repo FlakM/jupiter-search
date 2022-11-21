@@ -25,4 +25,11 @@ RUN apt-get update && apt-get upgrade -y && \
 
 #RUN --mount=type=cache,target=/home/root/app/target cp /home/root/app/target/release/podcast2text /usr/local/bin
 COPY --from=builder /app/target/release/podcast2text /usr/local/bin
-CMD ["/usr/local/bin/podcast2text"]
+
+VOLUME /data/models /data/output
+
+
+ENV MODEL_PATH=/data/models/model.bin
+ENV OUTPUT_PATH=/data/output/
+
+ENTRYPOINT "/usr/local/bin/podcast2text"
