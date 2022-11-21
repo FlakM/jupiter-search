@@ -2,7 +2,7 @@
 name = "jupiter_common"
 version = "0.0.1"
 edition = "2021"
-license = "MIT"
+license = "MIT OR Apache-2.0"
 description = "Common utilities for podcast2text"
 repository = "https://github.com/flakm/jupiter-search"
 

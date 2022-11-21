@@ -1,12 +1,13 @@
 [package]
 name = "podcast2text"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
 
-license = "MIT"
+license = "MIT OR Apache-2.0"
 description = "Cli tool for downloading episodes from rss and running transcription"
 repository = "https://github.com/flakm/jupiter-search"
 
+readme = "../README.md"
 
 [dependencies]
 anyhow = "1.0.66"

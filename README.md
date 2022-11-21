@@ -2,12 +2,15 @@
 
 [![Crates.io][crates-badge]][crates-url]
 [![MIT licensed][mit-badge]][mit-url]
+[![APACHE 2 licensed][apache-badge]][apache-url]
 [![Build Status][actions-badge]][actions-url]
 
 [crates-badge]: https://img.shields.io/crates/v/podcast2text.svg
 [crates-url]: https://crates.io/crates/podcast2text
 [mit-badge]: https://img.shields.io/badge/license-MIT-blue.svg
-[mit-url]: https://github.com/tokio-rs/tokio/blob/master/LICENSE
+[mit-url]: https://github.com/FlakM/jupiter-search/blob/master/LICENSE-MIT
+[apache-badge]: https://img.shields.io/badge/License-Apache_2.0-blue.svg
+[apache-url]: https://github.com/FlakM/jupiter-search/blob/master/LICENSE-APACHE
 [actions-badge]: https://github.com/flakm/jupiter-search/actions/workflows/build.yml/badge.svg
 [actions-url]: https://github.com/FlakM/jupiter-search/actions
 

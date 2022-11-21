@@ -2,7 +2,7 @@
 name = "jupiter_downloader"
 version = "0.0.1"
 edition = "2021"
-license = "MIT"
+license = "MIT OR Apache-2.0"
 description = "Library for downloading episodes from rss and running transcription"
 repository = "https://github.com/flakm/jupiter-search"
 
