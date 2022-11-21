@@ -19,7 +19,7 @@ FROM ubuntu:20.04 as runtime
 
 WORKDIR app
 
-RUN apt-get update && apt-get upgrade && \
+RUN apt-get update && apt-get upgrade -y && \
     apt-get install -y ffmpeg openssl
 
 
