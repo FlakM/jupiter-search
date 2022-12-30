@@ -31,9 +31,8 @@ async fn main() -> Result<()> {
                 debug: cli.debug,
                 threads_per_worker,
             };
-            let results = downloader.download_rss(params).await?;
-
-            println!("{:?}", results);
+            downloader.download_rss(params).await?;
+            println!("downloaded");
         }
 
         cli::Commands::File { auido_file: _ } => todo!(),

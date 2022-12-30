@@ -83,7 +83,7 @@ impl Downloader {
                     acc
                 });
 
-        let workers = (0..params.worker_count).into_iter();
+        let workers = 0..params.worker_count;
         let tasks = stream::iter(workers).map(|worker| {
             let client = client.clone();
             let chunk = chunks.pop_front().unwrap();

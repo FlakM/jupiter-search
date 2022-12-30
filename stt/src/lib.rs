@@ -122,6 +122,6 @@ mod tests {
             .get_transcript_file("resources/super_short.mp3", true, 12)
             .unwrap();
         println!("{:?}", t);
-        assert!(t.utterances.len() > 0)
+        assert!(!t.utterances.is_empty())
     }
 }
