@@ -67,7 +67,7 @@ impl SttContext {
         let mut params = FullParams::new(SamplingStrategy::Greedy { n_past: 0 });
 
         params.set_n_threads(threads as i32);
-        params.set_print_special_tokens(debug);
+        params.set_print_special(debug);
         params.set_print_progress(debug);
         params.set_print_timestamps(debug);
 

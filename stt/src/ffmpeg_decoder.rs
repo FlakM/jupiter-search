@@ -11,6 +11,10 @@ use std::{fs::File, process::Command};
 // ffmpeg -i input.mp3 -ar 16000 output.wav
 fn use_ffmpeg<P: AsRef<Path>>(input_path: P) -> Result<Vec<i16>> {
     let temp_file = temp_dir().join(format!("{}.wav", uuid::Uuid::new_v4()));
+    eprintln!(
+        "Starting converting to wav file {}",
+        temp_file.as_path().to_string_lossy()
+    );
     let mut pid = Command::new("ffmpeg")
         .args([
             "-i",
@@ -37,7 +41,12 @@ fn use_ffmpeg<P: AsRef<Path>>(input_path: P) -> Result<Vec<i16>> {
         let output = File::open(&temp_file)?;
         let mut reader = Reader::new(output)?;
         let samples: Result<Vec<i16>, _> = reader.samples().collect();
+        eprintln!(
+            "Finished converting to wav file {}",
+            temp_file.as_path().to_string_lossy()
+        );
         std::fs::remove_file(temp_file)?;
+
         samples.map_err(|e| e.into())
     } else {
         Err(anyhow!("unable to convert file"))

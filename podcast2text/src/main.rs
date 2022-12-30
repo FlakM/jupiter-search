@@ -58,5 +58,10 @@ fn validate_worker_params(params: &Cli, worker_count: &Option<usize>) -> Result<
                 ));
     }
 
+    eprintln!(
+        "Picked number of workers {}, each with {} threads",
+        workers, threads_per_worker
+    );
+
     Ok((threads_per_worker, workers))
 }

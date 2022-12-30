@@ -10,7 +10,7 @@ repository = "https://github.com/flakm/jupiter-search"
 [dependencies]
 anyhow = { version = "1.0", features = ["std"] }
 
-whisper-rs = "0.2.0"
+whisper-rs = "0.3.0"
 
 symphonia = { version = "0.5.1", features = ["mp3"] }
 rubato = "0.12.0"

@@ -14,16 +14,12 @@
 [actions-badge]: https://github.com/flakm/jupiter-search/actions/workflows/build.yml/badge.svg
 [actions-url]: https://github.com/FlakM/jupiter-search/actions
 
+Complete set of tools for making your favourite podcast searchable.
 
-A showcase for indexing [jupiter network](https://www.jupiterbroadcasting.com/) podcasts using [meilisearch](https://www.meilisearch.com/).
-This repository is build in order to provide possible solution to following problems:
+Originally created for [jupiter network](https://www.jupiterbroadcasting.com/) podcasts using [meilisearch](https://www.meilisearch.com/).
 
-- [search](https://github.com/JupiterBroadcasting/jupiterbroadcasting.com/issues/26)
-- [transcription](https://github.com/JupiterBroadcasting/jupiterbroadcasting.com/issues/301)
-
-**DISCLAIMER!**
-
-Warning! This is a work in progress version to showcase how indexing/transcription might work.
+- [search issue](https://github.com/JupiterBroadcasting/jupiterbroadcasting.com/issues/26)
+- [transcription issue](https://github.com/JupiterBroadcasting/jupiterbroadcasting.com/issues/301)
 
 ## Overview
 
@@ -34,7 +30,7 @@ Project contains two main modules:
   instance of meilisearch
 
 
-## Building
+## Getting started
 
 To build you would need following packages on your system:
 
@@ -61,16 +57,16 @@ git config --local core.hooksPath .githooks
 
 ### Run downloading podcasts
 
-### Process audio from RSS feed
+#### Process audio from RSS feed
 
 
-1. Download the whisper model
+1. Create cache directories and download the whisper model
 
 ```shell
-mkdir models
+mkdir -p {models,output}
 # this might be one of:
 # "tiny.en" "tiny" "base.en" "base" "small.en" "small" "medium.en" "medium" "large"
-model=medium.en
+model=tiny.en
 curl --output models/model.bin https://ggml.ggerganov.com/ggml-model-whisper-$model.bin
 ```
 
@@ -78,18 +74,29 @@ curl --output models/model.bin https://ggml.ggerganov.com/ggml-model-whisper-$mo
 
 ```shell
 # get information about the cli
-docker run flakm/podcast2text --help
+docker run flakm/podcast2text rss --help
 
 docker run \
     -v $PWD/models:/data/models \
+    -v $PWD/output:/data/output \
     flakm/podcast2text \
-    rss https://feed.jupiter.zone/allshows
+    rss \
+    --num-of-episodes 2 \
+    https://feed.jupiter.zone/allshows 
 ```
 
+The output directory should now contain json files with files'
+transcription and metadata. Note that the results will be cached - so if
+you restart the job it will not redownload and process already seen
+rss entries.
 
 
+### Create search engine
 
-### Install meilisearch
+#### Install meilisearch
+
+Project uses [meilisearch](https://www.meilisearch.com/) as engine
+back end for search functionality
 
 ```shell
 docker pull getmeili/meilisearch:v0.29
@@ -101,29 +108,5 @@ docker run -it --rm \
     meilisearch --env="development"
 ```
 
-### Run index creation and data loading
+#### Run index creation and data loading
 
-### Running inference of some audio
-
-1. Download whisper model
-
-```
-mkdir models
-# this might be one of:
-# "tiny.en" "tiny" "base.en" "base" "small.en" "small" "medium.en" "medium" "large"
-model=medium.en
-curl --output models/ggml-$model.bin https://ggml.ggerganov.com/ggml-model-whisper-$model.bin
-```
-2. Download the example audio from rss feed
-
-```
-curl https://feed.jupiter.zone/link/19057/15745245/55bb5263-04be-43a3-8b92-678072a9cfc8.mp3 -L -o action.mp3
-```
-
-3. Install `ffmpeg` and put it on `PATH` variable.
-
-4. Run the inference example
-
-```
-cargo run --release --example=get_transcript -- models/ggml-medium.en.bin action_short.wav | tee output.txt
-```

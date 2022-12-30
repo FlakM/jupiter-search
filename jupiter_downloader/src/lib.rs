@@ -6,9 +6,10 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{anyhow, Result};
+use futures::{stream, StreamExt}; // 0.3.8
+                                  //
+use anyhow::Result;
 use episode_full::EpisodeFull;
-use futures::future::join_all;
 use jupiter_common::{AllEpisodes, Episode};
 use metadata::Metadata;
 use reqwest::Client;
@@ -51,10 +52,7 @@ impl Downloader {
         }
     }
 
-    pub async fn download_rss<'a>(
-        &self,
-        params: DownloadParams<'a>,
-    ) -> Result<Vec<Result<Vec<TranscriptionResult>>>> {
+    pub async fn download_rss<'a>(&self, params: DownloadParams<'a>) -> Result<()> {
         let client = self.client.clone();
 
         let rss_content = client.get(params.rss_url).send().await?.text().await?;
@@ -85,13 +83,13 @@ impl Downloader {
                     acc
                 });
 
-        let mut handles = Vec::new();
-        for worker in 0..params.worker_count {
+        let workers = (0..params.worker_count).into_iter();
+        let tasks = stream::iter(workers).map(|worker| {
             let client = client.clone();
             let chunk = chunks.pop_front().unwrap();
             let dir = params.output_dir.to_path_buf();
             let model_file_path = params.model_file_path.to_path_buf();
-            let handle = tokio::spawn(async move {
+            tokio::spawn(async move {
                 println!("#{} - starting new task for worker ", worker);
                 let mut context = SttContext::try_new(&model_file_path)?;
 
@@ -128,16 +126,15 @@ impl Downloader {
                     }
                 }
                 Ok::<Vec<TranscriptionResult>, anyhow::Error>(downloaded)
-            });
-            handles.push(handle);
-        }
+            })
+        }).buffer_unordered(params.worker_count);
 
-        let results: Result<Vec<_>> = join_all(handles)
-            .await
-            .into_iter()
-            .map(|a| a.map_err(|e| anyhow!(e)))
-            .collect();
-        results
+        tasks
+            .for_each(|b| async move {
+                println!("{:?}", b);
+            })
+            .await;
+        Ok(())
     }
 }
 
