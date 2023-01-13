@@ -2,14 +2,13 @@ use std::{
     collections::VecDeque,
     env::temp_dir,
     fs::File,
-    io::Cursor,
     path::{Path, PathBuf},
 };
 
-use futures::{stream, StreamExt}; // 0.3.8
-                                  //
 use anyhow::Result;
 use episode_full::EpisodeFull;
+use futures::stream;
+use futures_util::StreamExt;
 use jupiter_common::{AllEpisodes, Episode};
 use metadata::Metadata;
 use reqwest::Client;
@@ -157,11 +156,14 @@ pub async fn process_episode(
 }
 
 pub async fn download_episode(client: Client, data: &Enclosure) -> Result<PathBuf> {
+    use std::io::Write;
+
     let temp_file = temp_dir().join(format!("{}.mp3", uuid::Uuid::new_v4()));
     let mut file = std::fs::File::create(&temp_file)?;
-    let bytes = client.get(data.url()).send().await?.bytes().await?;
-    let mut content = Cursor::new(bytes);
-    std::io::copy(&mut content, &mut file)?;
+    let mut stream = client.get(data.url()).send().await?.bytes_stream();
+    while let Some(bytes) = stream.next().await {
+        file.write_all(bytes?.as_ref())?;
+    }
     eprintln!("Downloaded file {}", temp_file.as_path().to_string_lossy());
     Ok(temp_file)
 }

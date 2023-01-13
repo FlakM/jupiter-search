@@ -8,9 +8,10 @@ repository = "https://github.com/flakm/jupiter-search"
 
 [dependencies]
 anyhow = "1.0.66"
-reqwest = "0.11.12"
-
+reqwest = { version = "0.11.12", features = ['stream'] }
 tokio = { version = "1.21.2", features = ["full"] }
+futures-util = { version = "0.3" }
+
 rss = { version = "2.0.1", features = ["serde", "url"] }
 serde_json = "1.0"
 serde = { version = "1.0.147", features = ["derive"] }
