@@ -4,6 +4,7 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, Result};
+use log::{debug, info};
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext};
 
 use serde::{Deserialize, Serialize};
@@ -34,7 +35,7 @@ impl SttContext {
             .as_ref()
             .to_str()
             .ok_or_else(|| anyhow!("invalid utf in path {:?}", path.as_ref()))?;
-        println!("created model");
+        info!("Created model from path {}", stringy_path);
         let ctx = WhisperContext::new(stringy_path).map_err(|e| {
             anyhow!(
                 "failed to load model at path {:?} due to {:?}",
@@ -74,10 +75,10 @@ impl SttContext {
         let ctx = &mut self.whisper_context;
         let st = Instant::now();
 
-        eprintln!("feed the algo");
+        debug!("Starting inference");
 
         ctx.full(params, input_bytes)
-            .map_err(|_| anyhow!("failed to run moder"))?;
+            .map_err(|_| anyhow!("failed to run model"))?;
 
         let num_segments = ctx.full_n_segments();
 

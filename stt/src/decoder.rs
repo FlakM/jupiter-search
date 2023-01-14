@@ -118,7 +118,6 @@ pub fn read_file<P: AsRef<Path>>(audio_file_path: P) -> Result<Vec<f32>> {
         window: WindowFunction::BlackmanHarris2,
     };
 
-    println!(">>>> {}", input_params.sample_rate.unwrap());
     let source_samples = sample_buf.unwrap();
     let mut resampler = SincFixedIn::<f32>::new(
         16000_f64 / input_params.sample_rate.unwrap() as f64,

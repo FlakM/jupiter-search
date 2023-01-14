@@ -1,12 +1,18 @@
+use std::env::temp_dir;
+
 use anyhow::{anyhow, Result};
 use clap::Parser;
 use cli::Cli;
+use env_logger::Env;
 use jupiter_downloader::{DownloadParams, Downloader};
+use log::info;
 
 mod cli;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+
     let cli = cli::Cli::parse();
     let downloader = Downloader::default();
 
@@ -17,9 +23,14 @@ async fn main() -> Result<()> {
             worker_count,
         } => {
             let (threads_per_worker, workers) = validate_worker_params(&cli, worker_count)?;
-            let wd = match cli.output_path {
+            let wd = match cli.output_dir {
                 None => std::env::current_dir()?,
                 Some(dir) => dir,
+            };
+
+            let download_dir = match cli.download_dir {
+               Some(dir) => dir,
+               None => temp_dir()
             };
 
             let params = DownloadParams {
@@ -30,9 +41,10 @@ async fn main() -> Result<()> {
                 n_elements: *num_of_episodes,
                 debug: cli.debug,
                 threads_per_worker,
+                download_directory: &download_dir
             };
             downloader.download_rss(params).await?;
-            println!("downloaded");
+            info!("Downloaded all scheduled");
         }
 
         cli::Commands::File { auido_file: _ } => todo!(),
@@ -57,7 +69,7 @@ fn validate_worker_params(params: &Cli, worker_count: &Option<usize>) -> Result<
                 ));
     }
 
-    eprintln!(
+    info!(
         "Picked number of workers {}, each with {} threads",
         workers, threads_per_worker
     );

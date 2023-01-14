@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Result};
 use audrey::Reader;
+use log::debug;
 use std::env::temp_dir;
 use std::path::Path;
 use std::process::Stdio;
@@ -11,7 +12,7 @@ use std::{fs::File, process::Command};
 // ffmpeg -i input.mp3 -ar 16000 output.wav
 fn use_ffmpeg<P: AsRef<Path>>(input_path: P) -> Result<Vec<i16>> {
     let temp_file = temp_dir().join(format!("{}.wav", uuid::Uuid::new_v4()));
-    eprintln!(
+    debug!(
         "Starting converting to wav file {}",
         temp_file.as_path().to_string_lossy()
     );
@@ -30,6 +31,8 @@ fn use_ffmpeg<P: AsRef<Path>>(input_path: P) -> Result<Vec<i16>> {
             "pcm_s16le",
             (temp_file.to_str().unwrap()),
             "-hide_banner",
+            "-threads",
+            "6",
             "-y",
             "-loglevel",
             "error",
@@ -41,7 +44,7 @@ fn use_ffmpeg<P: AsRef<Path>>(input_path: P) -> Result<Vec<i16>> {
         let output = File::open(&temp_file)?;
         let mut reader = Reader::new(output)?;
         let samples: Result<Vec<i16>, _> = reader.samples().collect();
-        eprintln!(
+        debug!(
             "Finished converting to wav file {}",
             temp_file.as_path().to_string_lossy()
         );

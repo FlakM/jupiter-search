@@ -1,13 +1,13 @@
-use std::{convert::TryFrom, path::Path};
-
 use anyhow::Result;
-use lofty::{Accessor, ItemKey, Probe};
+use lofty::{Accessor, AudioFile, ItemKey, Probe, TaggedFileExt};
 use serde::{Deserialize, Serialize};
+use std::{convert::TryFrom, path::Path, time::Duration};
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Metadata {
     title: String,
     pictures: Vec<String>,
+    pub duration: Duration,
     unique_id: String,
 }
 
@@ -22,11 +22,14 @@ pub fn read_metadata(path: &Path) -> Result<Metadata> {
     let tagged_file = Probe::open(path)?.read()?;
     let mut meta = Metadata::default();
 
-    let tag = &tagged_file.tags()[0];
+    let tag = &tagged_file.first_tag().unwrap();
 
     meta.title = tag.title().unwrap().to_string();
     // pictures are too big for now
     //meta.pictures = tag.pictures().iter().map(|a| base64::encode(a.as_ape_bytes())).collect();
+
+    let properties = tagged_file.properties();
+    meta.duration = properties.duration();
 
     let mut pguid = tag.get_strings(&ItemKey::PodcastGlobalUniqueID).peekable();
 

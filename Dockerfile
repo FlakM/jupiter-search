@@ -26,6 +26,6 @@ COPY --from=builder /app/target/release/podcast2text /usr/local/bin
 VOLUME /data/models /data/output
 
 ENV MODEL_PATH=/data/models/model.bin
-ENV OUTPUT_PATH=/data/output/
+ENV OUTPUT_DIR=/data/output/
 
 ENTRYPOINT [ "/usr/local/bin/podcast2text"]

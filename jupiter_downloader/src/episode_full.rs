@@ -9,4 +9,5 @@ pub struct EpisodeFull {
     pub transcript: Transcript,
     pub metadata: Metadata,
     pub episode: Episode,
+    pub speedup: f32,
 }

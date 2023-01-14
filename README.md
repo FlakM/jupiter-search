@@ -43,7 +43,6 @@ There is a nix flake configured to ship build dependencies
 just run `direnv allow` and run:
 
 ```shell
-git submodule update --init --recursive
 cargo build --release
 ```
 
@@ -82,6 +81,14 @@ docker run \
     flakm/podcast2text \
     rss \
     --num-of-episodes 2 \
+    https://feed.jupiter.zone/allshows 
+
+# or using cargo
+cargo run --bin podcast2text --release -- \
+    --model-path=models/model.bin \
+    --output-dir=output/ \
+    rss \
+    --num-of-episodes 1 \
     https://feed.jupiter.zone/allshows 
 ```
 

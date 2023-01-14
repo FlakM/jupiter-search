@@ -7,19 +7,23 @@ use clap::{Parser, Subcommand};
 #[command(propagate_version = true)]
 pub(crate) struct Cli {
     /// Turn debugging information on
-    #[arg(short, long, default_value_t = false)]
+    #[arg(long, default_value_t = false)]
     pub(crate) debug: bool,
 
     /// Sets a path to a whisper model that should be used for transcription
-    #[arg(short, long, env = "MODEL_PATH")]
+    #[arg(long, env = "MODEL_PATH")]
     pub(crate) model_path: PathBuf,
 
     /// Sets a path to output directory. Defaults to working directory.
-    #[arg(short, long, env = "OUTPUT_PATH")]
-    pub(crate) output_path: Option<PathBuf>,
+    #[arg(long, env = "OUTPUT_DIR")]
+    pub(crate) output_dir: Option<PathBuf>,
+
+    /// Sets a path to mp3 download directory. Defaults to /tmp directory.
+    #[arg(long, env = "DOWNLOAD_DIR")]
+    pub(crate) download_dir: Option<PathBuf>,
 
     /// Sets worker count
-    #[arg(short, long, default_value_t = 6)]
+    #[arg(long, default_value_t = 6)]
     pub(crate) threads_per_worker: usize,
 
     #[command(subcommand)]

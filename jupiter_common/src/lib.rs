@@ -4,7 +4,7 @@ use anyhow::anyhow;
 use anyhow::Result;
 use chrono::offset::FixedOffset;
 use chrono::DateTime;
-use regex::Regex;
+use log::info;
 use rss::Enclosure;
 use rss::{Channel, Item};
 use serde::{Deserialize, Serialize};
@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 impl TryFrom<String> for AllEpisodes {
     fn try_from(value: String) -> Result<Self, Self::Error> {
         let channel = Channel::read_from(value.as_bytes())?;
-        println!("deserialized items: {}", channel.items.len());
+        info!("deserialized rss items: {}", channel.items.len());
 
         let episodes: Vec<Episode> = channel
             .items
@@ -31,8 +31,6 @@ pub struct AllEpisodes {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Episode {
-    /// id has to contain only letters: a-zA-Z0-9 and has to be unique
-    pub id: String,
     pub title: String,
     pub description: Option<String>,
     pub content: Option<String>,
@@ -44,15 +42,8 @@ pub struct Episode {
 impl TryFrom<Item> for Episode {
     type Error = anyhow::Error;
     fn try_from(episode: Item) -> Result<Self, Self::Error> {
-        //todo come up with better cleaning up... at least move it to lazy static
-        let re = Regex::new(r"[a-zA-Z0-9]").unwrap();
         let title = episode.title.ok_or_else(|| anyhow!("missing title"))?;
         let episode = Episode {
-            id: re
-                .find_iter(&title)
-                .map(|a| a.as_str())
-                .collect::<Vec<_>>()
-                .join(""),
             title,
             description: episode.description,
             content: episode.content,

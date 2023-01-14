@@ -23,3 +23,7 @@ clap = { version = "4.0.26", features = ["derive", "env"] }
 
 jupiter_downloader = { path = "../jupiter_downloader" ,  version = "0.0.1" }
 jupiter_common = { path = "../jupiter_common",  version = "0.0.1" }
+
+
+env_logger = "0.10.0"
+log = "0.4.17"
