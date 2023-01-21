@@ -26,6 +26,10 @@ pub(crate) struct Cli {
     #[arg(long, default_value_t = 6)]
     pub(crate) threads_per_worker: usize,
 
+    /// Control if parallel settings should be limited to sane defaults
+    #[arg(long, default_value_t = true)]
+    pub(crate) sane_defaults: bool,
+
     #[command(subcommand)]
     pub(crate) command: Commands,
 }

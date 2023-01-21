@@ -65,7 +65,7 @@ fn validate_worker_params(params: &Cli, worker_count: &Option<usize>) -> Result<
         None => num_cpus / threads_per_worker,
         Some(n) => n,
     };
-    if workers * threads_per_worker > num_cpus {
+    if workers * threads_per_worker > num_cpus && !params.sane_defaults{
         return Err(anyhow!("Provided parameter --worker_count ({}) and --threads_per_worker ({}) multiplied should be less then total avaialable parallelism ({})",
             workers, threads_per_worker, num_cpus
                 ));

@@ -86,11 +86,12 @@ docker run \
 
 # or using cargo
 cargo run --bin podcast2text --release -- \
-    --model-path=models/model.bin \
+    --model-path=models/tiny.en.bin \
     --output-dir=output/ \
+    --threads-per-worker=4 \
     --download-dir=catalog \
     rss \
-    --num-of-episodes 1 \
+    --worker-count=6 \
     https://feed.jupiter.zone/allshows 
 ```
 

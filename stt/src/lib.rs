@@ -51,6 +51,7 @@ impl SttContext {
                 e
             )
         })?;
+
         let model_path = Path::new(stringy_path);
         let hash = sha256::try_digest(model_path)?;
 

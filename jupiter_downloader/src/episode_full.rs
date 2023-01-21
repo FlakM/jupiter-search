@@ -24,9 +24,9 @@ impl From<stt::ModelInfo> for ModelData {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct EpisodeFull {
     pub transcript: Transcript,
-    pub metadata: Metadata,
+    pub metadata: Option<Metadata>,
     pub episode: Episode,
-    pub speedup: f32,
+    pub speedup: Option<f32>,
     pub podcast2text_git_commit: String,
     pub model_info: ModelData,
 }

@@ -11,7 +11,7 @@ use futures_util::StreamExt;
 use jupiter_common::{AllEpisodes, Episode};
 use log::{debug, info};
 use metadata::Metadata;
-use reqwest::Client;
+use reqwest::{Client, StatusCode};
 use rss::Enclosure;
 use stt::SttContext;
 use tokio::sync::Mutex;
@@ -23,6 +23,7 @@ pub mod metadata;
 pub enum TranscriptionResult {
     Downloaded { title: String },
     Skipped { title: String },
+    NotFountEpisode { title: String },
 }
 
 pub struct Downloader {
@@ -66,7 +67,7 @@ impl Downloader {
             episodes.retain(|e| e.title.to_lowercase().contains(filter))
         };
 
-        let num = params.n_elements.ok_or(episodes.len()).unwrap_or_default();
+        let num = params.n_elements.unwrap_or(episodes.len());
         let episodes: Vec<Episode> = episodes.into_iter().take(num).collect();
 
         let workers = if episodes.len() < params.worker_count {
@@ -116,11 +117,19 @@ impl Downloader {
                             episode.title.clone()
                         )
                         .await?;
-                        serde_json::to_writer_pretty(&File::create(&file_target)?, &full)?;
-                        downloaded.push(TranscriptionResult::Downloaded {
-                            title: episode.title,
-                        });
-                        info!("#{} - transcription done and saved to a file {:?}", worker, &file_target);
+
+                        if let Some(full) = full {
+                            serde_json::to_writer_pretty(&File::create(&file_target)?, &full)?;
+                            downloaded.push(TranscriptionResult::Downloaded {
+                                title: episode.title,
+                            });
+                            info!("#{} - transcription done and saved to a file {:?}", worker, &file_target);
+                        } else {
+                            downloaded.push(TranscriptionResult::NotFountEpisode  {
+                                title: episode.title,
+                            });
+
+                        }
                     } else {
                         info!(
                         "#{} - skipping downloading a file for episode {} since it seems to be already present!",
@@ -152,21 +161,37 @@ pub async fn process_episode(
     debug: bool,
     dir: &Path,
     title: String,
-) -> Result<EpisodeFull> {
+) -> Result<Option<EpisodeFull>> {
     let path = download_episode(client, &episode.enclosure, dir, title).await?;
-    let metadata: Metadata = path.as_path().try_into()?;
+
+    let path = match path {
+        DownloadResult::Downloaded { path } => path,
+        DownloadResult::Skipped { path } => path,
+        DownloadResult::NotFound => return Ok(None),
+    };
+
+    let metadata: Option<Metadata> = path.as_path().try_into().ok();
     let transcript =
         whisper_context.get_transcript_file(path.as_path(), debug, threads_per_worker as u8)?;
-    let speedup = metadata.duration.as_secs_f32() / transcript.processing_time.as_secs_f32();
+    let speedup = metadata
+        .as_ref()
+        .map(|m| m.duration)
+        .map(|dur| dur.as_secs_f32() / transcript.processing_time.as_secs_f32());
     let model_info = whisper_context.model_data.clone().into();
-    Ok(EpisodeFull {
+    Ok(Some(EpisodeFull {
         transcript,
         metadata,
         episode,
         speedup,
         podcast2text_git_commit: env!("GIT_HASH").to_string(),
         model_info,
-    })
+    }))
+}
+
+pub enum DownloadResult {
+    Downloaded { path: PathBuf },
+    Skipped { path: PathBuf },
+    NotFound,
 }
 
 pub async fn download_episode(
@@ -174,21 +199,29 @@ pub async fn download_episode(
     data: &Enclosure,
     dir: &Path,
     title: String,
-) -> Result<PathBuf> {
+) -> Result<DownloadResult> {
     use std::io::Write;
     let path = dir.join(format!("{}.mp3", title));
     if !path.exists() {
         let mut file = std::fs::File::create(&path)?;
-        let mut stream = client.get(data.url()).send().await?.bytes_stream();
+        let response = client.get(data.url()).send().await?;
+
+        info!("response status: {}", response.status());
+        if response.status() != StatusCode::OK {
+            return Ok(DownloadResult::NotFound);
+        }
+
+        let mut stream = response.bytes_stream();
         while let Some(bytes) = stream.next().await {
             file.write_all(bytes?.as_ref())?;
         }
         info!("Downloaded file {}", path.as_path().to_string_lossy());
+        Ok(DownloadResult::Downloaded { path })
     } else {
         info!(
             "Skipped downloading file {}",
             path.as_path().to_string_lossy()
         );
+        Ok(DownloadResult::Skipped { path })
     }
-    Ok(path)
 }
