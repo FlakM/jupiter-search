@@ -44,6 +44,7 @@ pub struct DownloadParams<'a> {
     pub debug: bool,
     pub download_directory: &'a Path,
     pub threads_per_worker: usize,
+    pub name_filter: Option<&'a str>,
 }
 
 impl Downloader {
@@ -60,6 +61,10 @@ impl Downloader {
 
         let mut episodes: Vec<Episode> = AllEpisodes::try_from(rss_content)?.episodes;
         episodes.sort_by(|a, b| b.pub_date.cmp(&a.pub_date)); // we want download the latest first
+
+        if let Some(filter) = params.name_filter {
+            episodes.retain(|e| e.title.to_lowercase().contains(filter))
+        };
 
         let num = params.n_elements.ok_or(episodes.len()).unwrap_or_default();
         let episodes: Vec<Episode> = episodes.into_iter().take(num).collect();
@@ -146,33 +151,44 @@ pub async fn process_episode(
     threads_per_worker: usize,
     debug: bool,
     dir: &Path,
-    title: String
+    title: String,
 ) -> Result<EpisodeFull> {
     let path = download_episode(client, &episode.enclosure, dir, title).await?;
     let metadata: Metadata = path.as_path().try_into()?;
     let transcript =
         whisper_context.get_transcript_file(path.as_path(), debug, threads_per_worker as u8)?;
     let speedup = metadata.duration.as_secs_f32() / transcript.processing_time.as_secs_f32();
+    let model_info = whisper_context.model_data.clone().into();
     Ok(EpisodeFull {
         transcript,
         metadata,
         episode,
         speedup,
+        podcast2text_git_commit: env!("GIT_HASH").to_string(),
+        model_info,
     })
 }
 
-pub async fn download_episode(client: Client, data: &Enclosure, dir: &Path, title: String) -> Result<PathBuf> {
+pub async fn download_episode(
+    client: Client,
+    data: &Enclosure,
+    dir: &Path,
+    title: String,
+) -> Result<PathBuf> {
     use std::io::Write;
     let path = dir.join(format!("{}.mp3", title));
     if !path.exists() {
-    let mut file = std::fs::File::create(&path)?;
-    let mut stream = client.get(data.url()).send().await?.bytes_stream();
-    while let Some(bytes) = stream.next().await {
-        file.write_all(bytes?.as_ref())?;
-    }
-    info!("Downloaded file {}", path.as_path().to_string_lossy());
+        let mut file = std::fs::File::create(&path)?;
+        let mut stream = client.get(data.url()).send().await?.bytes_stream();
+        while let Some(bytes) = stream.next().await {
+            file.write_all(bytes?.as_ref())?;
+        }
+        info!("Downloaded file {}", path.as_path().to_string_lossy());
     } else {
-        info!("Skipped downloading file {}", path.as_path().to_string_lossy());
+        info!(
+            "Skipped downloading file {}",
+            path.as_path().to_string_lossy()
+        );
     }
     Ok(path)
 }

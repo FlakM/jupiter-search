@@ -15,3 +15,5 @@ README.md
 # directories used in examples
 /models*/
 /output/
+/output_old/
+/catalog/

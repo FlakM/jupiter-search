@@ -21,6 +21,7 @@ async fn main() -> Result<()> {
             rss_url,
             num_of_episodes,
             worker_count,
+            name_filter,
         } => {
             let (threads_per_worker, workers) = validate_worker_params(&cli, worker_count)?;
             let wd = match cli.output_dir {
@@ -29,8 +30,8 @@ async fn main() -> Result<()> {
             };
 
             let download_dir = match cli.download_dir {
-               Some(dir) => dir,
-               None => temp_dir()
+                Some(dir) => dir,
+                None => temp_dir(),
             };
 
             let params = DownloadParams {
@@ -41,7 +42,8 @@ async fn main() -> Result<()> {
                 n_elements: *num_of_episodes,
                 debug: cli.debug,
                 threads_per_worker,
-                download_directory: &download_dir
+                download_directory: &download_dir,
+                name_filter: name_filter.as_deref(),
             };
             downloader.download_rss(params).await?;
             info!("Downloaded all scheduled");

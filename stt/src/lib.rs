@@ -25,8 +25,16 @@ pub struct Transcript {
     pub processing_time: Duration,
 }
 
+#[derive(Debug, Clone)]
+pub struct ModelInfo {
+    pub file_name: String,
+    pub sha256: String,
+    pub size: usize,
+}
+
 pub struct SttContext {
     whisper_context: WhisperContext,
+    pub model_data: ModelInfo,
 }
 
 impl SttContext {
@@ -43,9 +51,16 @@ impl SttContext {
                 e
             )
         })?;
+        let model_path = Path::new(stringy_path);
+        let hash = sha256::try_digest(model_path)?;
 
         Ok(SttContext {
             whisper_context: ctx,
+            model_data: ModelInfo {
+                file_name: stringy_path.to_string(),
+                sha256: hash,
+                size: std::fs::metadata(path)?.len() as usize,
+            },
         })
     }
 

@@ -66,7 +66,8 @@ mkdir -p {models,output}
 # this might be one of:
 # "tiny.en" "tiny" "base.en" "base" "small.en" "small" "medium.en" "medium" "large"
 model=tiny.en
-curl --output models/model.bin https://ggml.ggerganov.com/ggml-model-whisper-$model.bin
+
+curl -L --output models/$model.bin https://huggingface.co/datasets/ggerganov/whisper.cpp/resolve/main/ggml-$model.bin
 ```
 
 2. Run the inference on the RSS feed
@@ -87,6 +88,7 @@ docker run \
 cargo run --bin podcast2text --release -- \
     --model-path=models/model.bin \
     --output-dir=output/ \
+    --download-dir=catalog \
     rss \
     --num-of-episodes 1 \
     https://feed.jupiter.zone/allshows 

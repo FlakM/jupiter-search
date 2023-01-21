@@ -44,6 +44,10 @@ pub(crate) enum Commands {
         /// Sets worker count - will be set to sane default but can be fine tuned
         #[arg(short, long)]
         worker_count: Option<usize>,
+
+        /// filters based on given string using contains on lower cased episode title
+        #[arg(long)]
+        name_filter: Option<String>,
     },
     /// Transcribes local audio file
     File {
